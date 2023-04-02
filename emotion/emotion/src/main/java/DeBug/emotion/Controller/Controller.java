@@ -1,9 +1,16 @@
 package DeBug.emotion.Controller;
 
 import DeBug.emotion.Service.Service;
-import org.springframework.web.bind.annotation.RequestMapping;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
 
-@RequestMapping
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+@RestController
+@Slf4j
 public class Controller {
 
     public Controller(Service service) {
@@ -11,8 +18,7 @@ public class Controller {
     }
 
     private final Service service;
-    @RequestMapping("/test")
-    public String test(){
-        return "200";
-    }
+
+
+
 }

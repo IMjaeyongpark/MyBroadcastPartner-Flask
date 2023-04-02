@@ -9,4 +9,10 @@ public class Service {
     }
 
     private final Repository repository;
+
+    public String Check_ID(String id){
+        return "200";
+    }
+
+
 }
