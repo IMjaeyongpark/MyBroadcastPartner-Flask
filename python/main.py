@@ -2,6 +2,9 @@ import pytchat
 import pafy
 import json
 
+from hanspell import spell_checker
+import re
+
 import requests as requests
 
 youtube_api_key="AIzaSyBTh6c2K5gdPgQi22TlPKOUu75IJaLn594"
@@ -10,8 +13,10 @@ client_secret="6UypzJ1ZtXiaRbnHYry9AkTewLS45TmfgjwNBYJq"
 pafy.set_api_key(youtube_api_key)
 url = "https://naveropenapi.apigw.ntruss.com/sentiment-analysis/v1/analyze"
 
-video_id = 'wHUUxH8HaBQ'
+video_id = 'EjRQ_ebBWMQ'
 chat = pytchat.create(video_id=video_id)
+
+
 
 headers = {
     "X-NCP-APIGW-API-KEY-ID": client_id,
@@ -24,15 +29,17 @@ while chat.is_alive():
     try:
         data=chat.get()
         items = data.items
+
         for c in items:
+            message = re.sub(r"[^\uAC00-\uD7A3a-zA-Z\s]", "", c.message)
             data = {
-                "content": c.message
+                "content": message
             }
 
             response = requests.post(url, data=json.dumps(data), headers=headers)
             text = response.json()
             sen = text['sentences'][0]
-            print(f"{c.author.name}:{c.message}    {sen['confidence']}")
+            print(f"{c.author.name}:{c.message} -> {message}   {sen['confidence']}")
     except KeyboardInterrupt:
         chat.terminate()
         break
