@@ -6,13 +6,17 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "Test")
+@Document(collection = "Users")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Test {
+public class User {
+    @Id
+    private String Email;
 
-    private String Id;
-    private String name;
+    private String Name;
+
+    private String Channel_Name;
+
     private int age;
 }
