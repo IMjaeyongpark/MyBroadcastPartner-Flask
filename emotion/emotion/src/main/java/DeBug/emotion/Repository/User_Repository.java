@@ -1,6 +1,5 @@
 package DeBug.emotion.Repository;
 
-import DeBug.emotion.domain.Test;
 import DeBug.emotion.domain.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
