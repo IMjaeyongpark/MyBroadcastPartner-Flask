@@ -14,9 +14,10 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class BroadCastData {
-    private String Email;
+
     @Id
     private String BCID;
+    private String Email;
     private String Title;
     private String ActualStartTime;
     private Date ThumbnailsUrl;

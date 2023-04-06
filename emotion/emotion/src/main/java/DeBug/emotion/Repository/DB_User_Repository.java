@@ -4,6 +4,7 @@ import DeBug.emotion.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Optional;
 
 public class DB_User_Repository {
 
@@ -18,9 +19,14 @@ public class DB_User_Repository {
     }
 
     public String insert_User(User user){
-        mongoDBUserRepository.insert(user);
+        try {
+            if (true) {
+                mongoDBUserRepository.insert(user);
+            }
+        }catch(Exception e){
+            System.out.println("re");
+        }
         return "200";
     }
-
 
 }

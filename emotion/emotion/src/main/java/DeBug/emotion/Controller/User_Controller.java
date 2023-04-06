@@ -3,11 +3,13 @@ package DeBug.emotion.Controller;
 import DeBug.emotion.Service.User_Service;
 import DeBug.emotion.domain.User;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
 
+
 @RestController
-@RequestMapping("User")
+@RequestMapping("/User")
 @Slf4j
 @CrossOrigin("*")
 public class User_Controller {
@@ -18,14 +20,18 @@ public class User_Controller {
 
     private final User_Service userService;
 
-
-    //몽고디비 데이터 가져오기 테스트
-
-
-    @RequestMapping("/find_user")
-    public String find_User(){
-        String user_Email = userService.find_User().get(0).getEmail();
-        return user_Email;
+    //토큰 받아오기
+    @GetMapping("/find")
+    public String find_User(@RequestParam("id_token") String idToken){
+        System.out.println(idToken);
+        try {
+            String payload = idToken.split("[.]")[1];
+            return userService.getSubject(payload);
+        }
+        catch (Exception e) {
+            System.out.println("con");
+            return "400";
+        }
     }
 
     //몽고디비 데이터 삽입 테스트
