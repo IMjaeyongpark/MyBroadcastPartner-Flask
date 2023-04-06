@@ -15,7 +15,6 @@ import java.lang.annotation.Documented;
 @NoArgsConstructor
 public class User {
     @Id
-    @Field(name = "_id")
     private String Email;
 
     private String Name;
