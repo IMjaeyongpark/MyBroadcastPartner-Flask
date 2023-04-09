@@ -3,12 +3,8 @@ package DeBug.emotion.Controller;
 import DeBug.emotion.Service.Chat_Service;
 import DeBug.emotion.domain.Chat;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.security.Provider;
 import java.util.List;
 
 @RestController
@@ -23,8 +19,16 @@ public class Chat_Controller {
 
     private final Chat_Service chatservice;
 
-    @PostMapping("/find")
+    //채팅 저장
+    @PostMapping("/newChat")
+    public String insertChat(@RequestParam("chat")String chat){
+        return chatservice.insertChat(chat);
+    }
+
+    //채팅 불러오기
+    @GetMapping("/find")
     public List<Chat> findChat(String BCID){
         return chatservice.findChat(BCID);
     }
+
 }

@@ -17,7 +17,7 @@ public class Chat {
 
     private String BCID;
     private String Name;
-    private Date DateTime;
+    private String DateTime;
     private String Message;
     private String Emotion1;
     private String Emotion2;

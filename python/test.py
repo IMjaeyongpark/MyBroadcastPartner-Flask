@@ -13,15 +13,15 @@ print('[Hello, Flask!]')
 app = Flask(__name__)
 
 
-@app.route('/')
-def index():
+@app.route('/<video>')
+def index(video):
     youtube_api_key = "AIzaSyBTh6c2K5gdPgQi22TlPKOUu75IJaLn594"
     client_id = "h3mnzl35ep"
     client_secret = "6UypzJ1ZtXiaRbnHYry9AkTewLS45TmfgjwNBYJq"
     pafy.set_api_key(youtube_api_key)
     url = "https://naveropenapi.apigw.ntruss.com/sentiment-analysis/v1/analyze"
 
-    video_id = 'GjZaKt3TcKI'
+    video_id = video
     chat = pytchat.create(video_id=video_id)
     headers = {
         "X-NCP-APIGW-API-KEY-ID": client_id,
