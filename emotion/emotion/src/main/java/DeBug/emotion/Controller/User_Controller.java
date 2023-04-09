@@ -4,8 +4,6 @@ import DeBug.emotion.Service.User_Service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-
-
 @RestController
 @RequestMapping("/User")
 @Slf4j
@@ -34,5 +32,4 @@ public class User_Controller {
             return "400";
         }
     }
-
 }

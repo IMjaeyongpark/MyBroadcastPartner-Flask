@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Transactional
 public class DB_User_Repository{
-    
+
     @Autowired
     User_Repository mongoDBUserRepository;
 
@@ -25,7 +25,6 @@ public class DB_User_Repository{
         sampleUser.setEmail(user.getEmail());
         Example<User> example = Example.of(sampleUser);
         Optional<User> u  = mongoDBUserRepository.findOne(example);
-
 
         try {
             if (u.isEmpty()) {

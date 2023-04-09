@@ -7,8 +7,6 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Date;
-
 @Document(collection = "BroadCastData")
 @Getter
 @Setter
@@ -17,11 +15,11 @@ public class BroadCastData {
 
     @Id
     private String BCID;
-    private String Email;
+    private String email;
     private String Title;
+    private String ThumbnailsUrl;
     private String ActualStartTime;
-    private Date ThumbnailsUrl;
-    private Date ActualEndTime;
+    private String ActualEndTime;
     private int HighViewer;
     private int LowViewer;
 

@@ -2,7 +2,6 @@ import pytchat
 import pafy
 import json
 
-from hanspell import spell_checker
 import re
 
 import requests as requests
