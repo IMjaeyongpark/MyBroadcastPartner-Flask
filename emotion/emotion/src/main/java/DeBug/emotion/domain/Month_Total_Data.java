@@ -1,24 +1,23 @@
 package DeBug.emotion.domain;
 
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Date;
+import java.util.List;
 
-@Document(collection = "Chat")
+
+@Document(collection = "Month_Total_Data")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Chat {
-
+public class Month_Total_Data {
     @Id
-    private String id;
-    private String DateTime;
-    private String Message;
-    private String Emotion3;
-    private String Emotion7;
+    private String Month;
+    private Integer[] All_Emotion3;
+    private Integer[] All_Emotion7;
+
+    private List<Day_Total_Data> Day_Total_Data;
 }

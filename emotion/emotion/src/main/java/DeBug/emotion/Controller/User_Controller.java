@@ -19,8 +19,7 @@ public class User_Controller {
     //토큰 받아오기
     @GetMapping("/find")
     public String find_User(@RequestParam("id_token") String idToken){
-
-        System.out.println(idToken);
+    
         try {
 
             String payload = idToken.split("[.]")[1];
@@ -32,4 +31,20 @@ public class User_Controller {
             return "400";
         }
     }
+
+    @GetMapping("/test")
+    public String test(@RequestParam("id_token") String idToken){
+
+        try {
+
+            String payload = idToken.split("[.]")[1];
+            return userService.test(payload);
+        }
+        catch (Exception e) {
+
+            System.out.println("User_Controller error");
+            return "400";
+        }
+    }
+
 }

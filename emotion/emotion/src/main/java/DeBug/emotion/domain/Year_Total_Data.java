@@ -7,18 +7,16 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Date;
+import java.util.List;
 
-@Document(collection = "Chat")
+@Document(collection = "Year_Total_Data")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Chat {
-
+public class Year_Total_Data {
     @Id
-    private String id;
-    private String DateTime;
-    private String Message;
-    private String Emotion3;
-    private String Emotion7;
+    private String Year;
+    private Integer[] All_Emotion3;
+    private Integer[] All_Emotion7;
+    private List<Month_Total_Data> Month_Total_Data;
 }

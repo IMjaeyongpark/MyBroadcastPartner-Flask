@@ -5,9 +5,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.lang.annotation.Documented;
+import javax.validation.constraints.Email;
+import java.util.List;
 
 @Document(collection = "Users")
 @Getter
@@ -15,11 +15,17 @@ import java.lang.annotation.Documented;
 @NoArgsConstructor
 public class User {
     @Id
+    @Email
     private String Email;
 
     private String Name;
 
     private String Channel_Name;
 
-    private int age;
+    private String Locale;
+
+    private String Picture;
+
+    private List<BroadCast> BroadCast;
+    private List<Year_Total_Data> Year_Total_Data;
 }
