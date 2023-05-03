@@ -17,7 +17,6 @@ public class BroadCast {
 
     @Id
     private String BCID;
-
     private String URI;
     private String Title;
     private String ThumbnailsUrl;

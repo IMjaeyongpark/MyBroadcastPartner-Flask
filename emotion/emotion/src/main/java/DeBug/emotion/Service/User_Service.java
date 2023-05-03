@@ -29,6 +29,7 @@ public class User_Service {
             User user = new User();
             user.setName(payload.getString("name"));
             user.setEmail(payload.getString("email"));
+            user.setLocale(payload.getString("locale"));
             return UserRepository.insert_User(user);
 
         }catch(Exception e){
@@ -38,28 +39,10 @@ public class User_Service {
         }
     }
 
-    public String test(String token){
-        try{
-            //바디 디코딩 후 json형태로 변환
-            Base64.Decoder decoder = Base64.getUrlDecoder();
-            String subject = new String(decoder.decode(token));
-            JSONObject payload = new JSONObject(subject);
+    //본인 인증 및 방송정보 저장
+    public String identification(String Email,String URI,String BCID){
 
-            //값 가져오기
-            User user = new User();
-            user.setName(payload.getString("name"));
-            user.setEmail(payload.getString("email"));
-            List<BroadCast> BroadCastList = new ArrayList<BroadCast>();
-            BroadCast test = new BroadCast();
-            test.setBCID("test");
-            BroadCastList.add(test);
-            user.setBroadCast(BroadCastList);
-            return UserRepository.insert_User(user);
 
-        }catch(Exception e){
-
-            System.out.println("service error");
-            return "400";
-        }
+        return UserRepository.save_BroadCast(Email,URI,BCID);
     }
 }

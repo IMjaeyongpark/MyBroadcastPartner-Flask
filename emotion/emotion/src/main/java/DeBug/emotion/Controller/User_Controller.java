@@ -32,19 +32,11 @@ public class User_Controller {
         }
     }
 
-    @GetMapping("/test")
-    public String test(@RequestParam("id_token") String idToken){
-
-        try {
-
-            String payload = idToken.split("[.]")[1];
-            return userService.test(payload);
-        }
-        catch (Exception e) {
-
-            System.out.println("User_Controller error");
-            return "400";
-        }
+    @GetMapping("/identification")
+    public String identification(@RequestParam("Email") String Email,@RequestParam("URI") String URI){
+        //URI에서 BCID추출
+        String BCID = URI.replace("https://www.youtube.com/watch?v=", "");
+        return userService.identification(Email,URI,BCID);
     }
 
 }
