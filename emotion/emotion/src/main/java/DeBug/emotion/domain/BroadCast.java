@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
+//방송정보
 @Document(collection = "BroadCast")
 @Getter
 @Setter

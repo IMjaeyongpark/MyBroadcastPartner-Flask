@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
+//시청자 정보
 @Document(collection = "Author")
 @Getter
 @Setter
@@ -15,7 +16,7 @@ import java.util.List;
 public class Author {
 
     @Id
-    private  String Name;
+    private String Name;
     private Integer[] All_Emotion3;
     private Integer[] All_Emotion7;
     private List<Chat> Chat;

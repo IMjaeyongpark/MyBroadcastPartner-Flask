@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import javax.validation.constraints.Email;
 import java.util.List;
 
+//유저 정보
 @Document(collection = "Users")
 @Getter
 @Setter

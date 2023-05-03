@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
+//일별 정보
 @Document(collection = "Day_Total_Data")
 @Getter
 @Setter
