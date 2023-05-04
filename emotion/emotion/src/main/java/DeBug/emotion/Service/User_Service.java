@@ -1,10 +1,12 @@
 package DeBug.emotion.Service;
 
 import DeBug.emotion.Repository.MongoDB_Repository;
+import DeBug.emotion.domain.BroadCast;
 import DeBug.emotion.domain.User;
 import org.json.JSONObject;
 
 import java.util.Base64;
+import java.util.List;
 
 public class User_Service {
 
@@ -27,6 +29,7 @@ public class User_Service {
             user.setName(payload.getString("name"));
             user.setEmail(payload.getString("email"));
             user.setLocale(payload.getString("locale"));
+            user.setPicture(payload.getString("picture"));
             return mongoDB_Repository.insert_User(user);
 
         } catch (Exception e) {
@@ -39,7 +42,17 @@ public class User_Service {
     //본인 인증 및 방송정보 저장
     public User identification(User user, String URI, String BCID) {
 
+        //유저가 없으면 null반환
+        if (user == null) return null;
 
-        return mongoDB_Repository.save_BroadCast(user, URI, BCID);
+        //방송정보 담기
+        BroadCast BC = new BroadCast();
+        BC.setURI(URI);
+        BC.setBCID(BCID);
+        List<BroadCast> tmp = user.getBroadCast();
+        tmp.add(BC);
+        user.setBroadCast(tmp);
+
+        return mongoDB_Repository.save_BroadCast(user);
     }
 }

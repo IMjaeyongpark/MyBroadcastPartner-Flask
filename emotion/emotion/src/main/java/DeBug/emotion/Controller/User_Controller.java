@@ -39,7 +39,7 @@ public class User_Controller {
 
     //본인확인
     @GetMapping("/identification")
-    public String identification(@SessionAttribute(name = "Email", required = false) User user,
+    public String identification(@SessionAttribute(name = "User", required = false) User user,
                                  @RequestParam("URI") String URI, HttpServletRequest request) {
         //URI에서 BCID추출
         String BCID = URI.replace("https://www.youtube.com/watch?v=", "");
@@ -50,15 +50,26 @@ public class User_Controller {
 
     //세션 업데이트
     private String save_session(User user, HttpServletRequest request) {
-
         try {
             HttpSession session = request.getSession();
-            session.setAttribute(user.getEmail(), user);
+            session.setAttribute("User", user);
             return "200";
         } catch (Exception e) {
             System.out.println("세션 저장 실패");
             return "400";
         }
+    }
+
+
+    //로그아웃 세션 정보 삭제
+    @RequestMapping("/logout")
+    public String logout(HttpServletRequest request) {
+
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        return "200";
     }
 
 }

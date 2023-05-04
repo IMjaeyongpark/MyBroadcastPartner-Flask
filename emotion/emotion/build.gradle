@@ -15,19 +15,16 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.testng:testng:7.1.0'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'org.testng:testng:7.1.0'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	annotationProcessor('org.projectlombok:lombok:1.18.20')
 	compileOnly('org.projectlombok:lombok:1.18.20')
 	implementation ('org.springframework.boot:spring-boot-starter-data-mongodb')
-	implementation 'javax.xml.bind:jaxb-api:'
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
 	implementation 'io.jsonwebtoken:jjwt-impl:0.11.2'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation group: 'org.json', name: 'json', version: '20160810'
-	implementation 'com.google.api-client:google-api-client:1.31.0'
-	implementation 'com.google.oauth-client:google-oauth-client-jetty:1.31.0'
 }
 
 tasks.named('test') {

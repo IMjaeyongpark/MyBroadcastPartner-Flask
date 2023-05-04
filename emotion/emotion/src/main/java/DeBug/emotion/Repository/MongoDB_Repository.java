@@ -38,18 +38,7 @@ public class MongoDB_Repository {
     }
 
     //유저의 방송 정보 저장
-    public User save_BroadCast(User user, String URI, String BCID) {
-
-        //유저가 없으면 null반환
-        if (user == null) return null;
-
-        //방송정보 담기
-        BroadCast BC = new BroadCast();
-        BC.setURI(URI);
-        BC.setBCID(BCID);
-        List<BroadCast> tmp = user.getBroadCast();
-        tmp.add(BC);
-        user.setBroadCast(tmp);
+    public User save_BroadCast(User user) {
         //방송정보 저장
         mongoDBUserRepository.save(user);
         return user;
