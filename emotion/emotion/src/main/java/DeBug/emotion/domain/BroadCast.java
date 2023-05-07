@@ -4,9 +4,12 @@ package DeBug.emotion.domain;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 //방송정보
@@ -17,7 +20,8 @@ import java.util.List;
 public class BroadCast {
 
     @Id
-    private String BCID;
+    //BCID
+    private String _id;
     private String URI;
     private String Title;
     private String ThumbnailsUrl;
@@ -25,6 +29,8 @@ public class BroadCast {
     private String ActualEndTime;
     private Integer HighViewer;
     private Integer LowViewer;
-
-    private List<Author> Author;
+    private int[] All_Emotion3 = new int[3];
+    private int[] All_Emotion7 = new int[3];
+    @DBRef
+    private User user;
 }

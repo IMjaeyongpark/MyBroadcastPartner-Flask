@@ -22,19 +22,17 @@ public class User_Controller {
 
     //토큰 받아오기
     @GetMapping("/find")
-    public String find_User(@RequestParam("id_token") String idToken, HttpServletRequest request) {
+    public String find_User(@RequestParam("id_token") String idToken, HttpServletRequest request,
+                            @SessionAttribute(name = "User", required = false) User login) {
 
-        try {
-            //jwt PAYLOAD부분 추출
-            String payload = idToken.split("[.]")[1];
-            User user = userService.getSubject(payload);
-            if (user == null) return "400";
-            return save_session(user, request);
-        } catch (Exception e) {
-
-            System.out.println("User_Controller error");
-            return "400";
+        if (login != null) {
+            return "200";
         }
+        //jwt PAYLOAD부분 추출
+        String payload = idToken.split("[.]")[1];
+        User user = userService.getSubject(payload);
+        if (user == null) return "400";
+        return save_session(user, request);
     }
 
     //본인확인
@@ -42,10 +40,9 @@ public class User_Controller {
     public String identification(@SessionAttribute(name = "User", required = false) User user,
                                  @RequestParam("URI") String URI, HttpServletRequest request) {
         //URI에서 BCID추출
-        String BCID = URI.replace("https://www.youtube.com/watch?v=", "");
-        User tmp = userService.identification(user, URI, BCID);
-        if (tmp == null) return "400";
-        return save_session(tmp, request);
+        String BCID = URI.replace("https://", "").replace("www.","")
+                .replace("youtube.com/watch?v=", "");
+        return userService.identification(user, URI, BCID);
     }
 
     //세션 업데이트
