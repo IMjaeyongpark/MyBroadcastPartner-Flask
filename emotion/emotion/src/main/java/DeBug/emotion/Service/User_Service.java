@@ -2,12 +2,14 @@ package DeBug.emotion.Service;
 
 import DeBug.emotion.Repository.MongoDB_Repository;
 import DeBug.emotion.domain.BroadCast;
+import DeBug.emotion.domain.Chat;
 import DeBug.emotion.domain.User;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.bson.json.JsonObject;
 import org.json.JSONObject;
 
 import java.util.Base64;
@@ -42,17 +44,28 @@ public class User_Service {
         //유저가 없으면 null반환
         if (user == null) return null;
 
-        JSONObject json = get_YouTubeBC_Data(BCID);
+        try {
+            JSONObject json = get_YouTubeBC_Data(BCID);
+            if(json ==null) return null;
+            //방송정보 담기
+            BroadCast BC = new BroadCast();
+            BC.set_id(BCID);
+            BC.setURI(URI);
+            BC.setTitle(json.getString("title"));
+            BC.setThumbnailsUrl(json.getJSONObject("thumbnails").getJSONObject("default").getString("url"));
+            BC.setUser(user);
+            return mongoDB_Repository.save_BroadCast(BC);
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            return "400";
+        }
+    }
 
-        //방송정보 담기
-        BroadCast BC = new BroadCast();
-        BC.set_id(BCID);
-        BC.setURI(URI);
-        BC.setTitle(json.getString("title"));
-        BC.setThumbnailsUrl(json.getJSONObject("thumbnails").getJSONObject("default").getString("url"));
-        BC.setUser(user);
+    public String chat(String json){
+        JsonObject jsonObject = new JsonObject(json);
+        Chat chat = new Chat();
 
-        return mongoDB_Repository.save_BroadCast(BC);
+        return "200";
     }
 
     //방송 정보 가져오기

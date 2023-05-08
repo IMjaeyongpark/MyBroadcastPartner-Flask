@@ -22,6 +22,5 @@ public class Chat {
     private String Message;
     private int Emotion3;
     private int Emotion7;
-    @DBRef
-    private Author author;
+
 }

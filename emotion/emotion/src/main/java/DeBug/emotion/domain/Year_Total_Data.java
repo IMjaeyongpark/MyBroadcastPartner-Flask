@@ -1,29 +1,22 @@
 package DeBug.emotion.domain;
 
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
-import java.util.List;
-
-//시청자 정보
-@Document(collection = "Author")
+@Document(collection = "Year_Total_Data")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Author {
-
+public class Year_Total_Data {
     @Id
-    //시청자 이
-    private String _id;
+    private String Year;
     private int[] All_Emotion3 = new int[3];
-    private int[] All_Emotion7 = new int[3];
-    private List<Chat> chat = new ArrayList<Chat>();
+    private int[] All_Emotion7 = new int[7];
     @DBRef
-    private BroadCast broadCast;
+    private User user;
 }

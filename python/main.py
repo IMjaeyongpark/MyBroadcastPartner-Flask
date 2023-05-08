@@ -12,7 +12,7 @@ client_secret="6UypzJ1ZtXiaRbnHYry9AkTewLS45TmfgjwNBYJq"
 pafy.set_api_key(youtube_api_key)
 url = "https://naveropenapi.apigw.ntruss.com/sentiment-analysis/v1/analyze"
 
-video_id = 'EjRQ_ebBWMQ'
+video_id = 'H-ecGmLkXLM'
 chat = pytchat.create(video_id=video_id)
 
 

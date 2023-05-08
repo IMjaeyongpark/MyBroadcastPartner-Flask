@@ -3,6 +3,8 @@ package DeBug.emotion.Controller;
 import DeBug.emotion.Service.User_Service;
 import DeBug.emotion.domain.User;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.json.JsonObject;
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,23 +40,12 @@ public class User_Controller {
     //본인확인
     @GetMapping("/identification")
     public String identification(@SessionAttribute(name = "User", required = false) User user,
-                                 @RequestParam("URI") String URI, HttpServletRequest request) {
+                                 @RequestParam("URI") String URI) {
         //URI에서 BCID추출
         String BCID = URI.replace("https://", "").replace("www.","")
                 .replace("youtube.com/watch?v=", "");
-        return userService.identification(user, URI, BCID);
-    }
 
-    //세션 업데이트
-    private String save_session(User user, HttpServletRequest request) {
-        try {
-            HttpSession session = request.getSession();
-            session.setAttribute("User", user);
-            return "200";
-        } catch (Exception e) {
-            System.out.println("세션 저장 실패");
-            return "400";
-        }
+        return userService.identification(user, URI, BCID);
     }
 
 
@@ -69,4 +60,29 @@ public class User_Controller {
         return "200";
     }
 
+    //채팅 저장 및 전달
+    @RequestMapping("/chat")
+    public String chat(String json,String BCID){
+
+        return "200";
+    }
+
+    @RequestMapping("/mypage")
+    public User mypage(@SessionAttribute(name = "User", required = false) User user){
+
+        return user;
+    }
+
+
+    //세션 업데이트
+    private String save_session(User user, HttpServletRequest request) {
+        try {
+            HttpSession session = request.getSession();
+            session.setAttribute("User", user);
+            return "200";
+        } catch (Exception e) {
+            System.out.println("세션 저장 실패");
+            return "400";
+        }
+    }
 }

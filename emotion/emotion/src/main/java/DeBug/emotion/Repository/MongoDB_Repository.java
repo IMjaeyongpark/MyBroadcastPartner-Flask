@@ -5,7 +5,6 @@ import DeBug.emotion.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 
 @Transactional
 public class MongoDB_Repository {
@@ -37,9 +36,16 @@ public class MongoDB_Repository {
     //유저의 방송 정보 저장
     public String save_BroadCast(BroadCast BC) {
         //방송정보 저장
-        mongoDBBroadCastRepository.save(BC);
-        return "200";
+        try {
+            mongoDBBroadCastRepository.save(BC);
+            return "200";
+        }catch (Exception e) {
+            System.out.println(e.getMessage());
+            return "400";
+        }
     }
+
+
 
 
     //Email로 유저 찾기
