@@ -9,7 +9,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.bson.json.JsonObject;
 import org.json.JSONObject;
 
 import java.util.Base64;
@@ -62,9 +61,12 @@ public class User_Service {
     }
 
     public String chat(String json){
-        JsonObject jsonObject = new JsonObject(json);
+        JSONObject jsonObject = new JSONObject(json);
         Chat chat = new Chat();
-
+        chat.setMessage(jsonObject.getString("message"));
+        chat.setDateTime(jsonObject.getString("dateTime"));
+        chat.setEmotion3(jsonObject.getInt("emotion3"));
+        chat.setEmotion7(jsonObject.getInt("emotion7"));
         return "200";
     }
 
