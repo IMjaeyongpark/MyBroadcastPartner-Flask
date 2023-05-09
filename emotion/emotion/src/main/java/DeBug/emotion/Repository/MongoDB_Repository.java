@@ -1,16 +1,17 @@
 package DeBug.emotion.Repository;
 
-import DeBug.emotion.domain.BroadCast;
-import DeBug.emotion.domain.User;
+import DeBug.emotion.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 
 @Transactional
 public class MongoDB_Repository {
 
     @Autowired
-    private User_Repository mongoDBUserUserRepository;
+    private User_Repository mongoDBUserRepository;
 
     @Autowired
     private BroadCast_Repository mongoDBBroadCastRepository;
@@ -18,16 +19,20 @@ public class MongoDB_Repository {
     @Autowired
     private Author_Repositoy mongoDBAuthorRepository;
     @Autowired
-    private Chat_Repository mongoChatRepository;
+    private Year_Repositoy mongoDBYearRepositoy;
+    @Autowired
+    private Month_Repositoy mongoDBMonthRepositoy;
+    @Autowired
+    private Day_Repositoy mongoDBDayRepositoy;
 
 
     //회원정보가 없으면 db저장
     public User insert_User(User user) {
 
-        User u = mongoDBUserUserRepository.findOneBy_id(user.get_id());
+        User u = mongoDBUserRepository.findOneBy_id(user.get_id());
         //없으면 저장
-        if (u==null) {
-            mongoDBUserUserRepository.insert(user);
+        if (u == null) {
+            mongoDBUserRepository.insert(user);
             return user;
         }
         return u;
@@ -39,26 +44,78 @@ public class MongoDB_Repository {
         try {
             mongoDBBroadCastRepository.save(BC);
             return "200";
-        }catch (Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return "400";
         }
     }
 
+    //채팅 저장
+    public String chat(User user,Chat chat, String BCID, String author_name) {
+
+        Year_Total_Data year_total = new Year_Total_Data();
+
+        year_total.setYear("2023");
+        year_total.All_Emotion3[chat.getEmotion3()]++;
+        year_total.All_Emotion7[chat.getEmotion7()]++;
+        year_total.setUser(user);
+
+        Month_Total_Data month_total = new Month_Total_Data();
+        month_total.setMonth("3");
+        month_total.All_Emotion3[chat.getEmotion3()]++;
+        month_total.All_Emotion7[chat.getEmotion7()]++;
+        month_total.setYear_Total_Data(year_total);
+
+        Day_Total_Data day_total = new Day_Total_Data();
+        day_total.setDay("25");
+        day_total.All_Emotion3[chat.getEmotion3()]++;
+        day_total.All_Emotion7[chat.getEmotion7()]++;
+        day_total.setMonth_total_data(month_total);
 
 
+        //방송 정보로 시청자 정보 가져오기
+        BroadCast sampleBC = new BroadCast();
+        sampleBC.set_id(BCID);
+        List<Author> authorList = mongoDBAuthorRepository.findByBroadCast(sampleBC);
 
-    //Email로 유저 찾기
-//    private User find_UserByEmail(String email){
-//        User sampleUser = new User();
-//        sampleUser.setEmail(email);
-//        Example<User> example = Example.of(sampleUser);
-//        Optional<User> u  = mongoDBUserRepository.findOne(example);
+        //시청자 채팅 저장
+        for (Author author : authorList) {
+            if (author.getName().equals(author_name)) {
+                return save_chat(author, chat);
+            }
+        }
+
+        Author author = new Author();
+        author.setBroadCast(sampleBC);
+        author.setName(author_name);
+        return save_chat(author, chat);
+    }
+
+    private String save_chat(Author author, Chat chat) {
+        author.chat.add(chat);
+        author.All_Emotion3[chat.getEmotion3()]++;
+        author.All_Emotion7[chat.getEmotion7()]++;
+        try {
+            mongoDBAuthorRepository.save(author);
+            return "200";
+        } catch (Exception e) {
+            System.out.println("채팅 저장 실패");
+            return "400";
+        }
+    }
+
+
+    //시청자 정보 저장
+//    private Author find_AuthorByname(String name){
+//        Author sampleAuthor = new Author();
+//        sampleAuthor.setName(name);
+//        Example<Author> example = Example.of(sampleAuthor);
+//        Optional<Author> a  = mongoDBAuthorRepository.findOne(example);
 //        try {
-//            if (u.isEmpty()) {
+//            if (a.isEmpty()) {
 //                return null;
 //            }
-//            return u.get();
+//            return a.get();
 //        }catch(Exception e){
 //            return null;
 //        }

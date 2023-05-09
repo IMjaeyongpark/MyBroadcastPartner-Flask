@@ -1,6 +1,7 @@
 package DeBug.emotion.Controller;
 
 import DeBug.emotion.Service.User_Service;
+import DeBug.emotion.domain.Chat;
 import DeBug.emotion.domain.User;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.json.JsonObject;
@@ -8,6 +9,7 @@ import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 @RestController
@@ -23,10 +25,11 @@ public class User_Controller {
     private final User_Service userService;
 
     //토큰 받아오기
-    @GetMapping("/find")
+    @RequestMapping("/find")
     public String find_User(@RequestParam("id_token") String idToken, HttpServletRequest request,
-                            @SessionAttribute(name = "User", required = false) User login) {
+                            @SessionAttribute(name = "User", required = false) User login,HttpServletResponse response) {
 
+        System.out.println(request);
         if (login != null) {
             return "200";
         }
@@ -34,15 +37,27 @@ public class User_Controller {
         String payload = idToken.split("[.]")[1];
         User user = userService.getSubject(payload);
         if (user == null) return "400";
-        return save_session(user, request);
+        try {
+            HttpSession session = request.getSession();
+            session.setAttribute("User", user);
+            response.setHeader("User", "User");
+            System.out.println(session.getId());
+            return "200";
+        } catch (Exception e) {
+            System.out.println("세션 저장 실패");
+            return "400";
+        }
     }
 
     //본인확인
-    @GetMapping("/identification")
+    @RequestMapping("/identification")
     public String identification(@SessionAttribute(name = "User", required = false) User user,
                                  @RequestParam("URI") String URI) {
+
+        System.out.println(user.get_id());
+
         //URI에서 BCID추출
-        String BCID = URI.replace("https://", "").replace("www.","")
+        String BCID = URI.replace("https://", "").replace("www.", "")
                 .replace("youtube.com/watch?v=", "");
 
         return userService.identification(user, URI, BCID);
@@ -62,13 +77,15 @@ public class User_Controller {
 
     //채팅 저장 및 전달
     @RequestMapping("/chat")
-    public String chat(String json,String BCID){
-
+    public String chat(@SessionAttribute(name = "User", required = false) User user,
+                       @RequestBody Chat chat, @RequestParam("BCID") String BCID,
+                       @RequestParam("name") String name) {
+        userService.chat(user,chat, BCID, name);
         return "200";
     }
 
     @RequestMapping("/mypage")
-    public User mypage(@SessionAttribute(name = "User", required = false) User user){
+    public User mypage(@SessionAttribute(name = "User", required = false) User user) {
 
         return user;
     }
@@ -79,6 +96,7 @@ public class User_Controller {
         try {
             HttpSession session = request.getSession();
             session.setAttribute("User", user);
+
             return "200";
         } catch (Exception e) {
             System.out.println("세션 저장 실패");

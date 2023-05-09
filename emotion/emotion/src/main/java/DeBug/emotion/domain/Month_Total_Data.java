@@ -15,8 +15,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Month_Total_Data {
     @Id
     private String Month;
-    private int[] All_Emotion3 = new int[3];
-    private int[] All_Emotion7 = new int[7];
+    public int[] All_Emotion3 = new int[3];
+    public int[] All_Emotion7 = new int[7];
     @DBRef
     private Year_Total_Data year_Total_Data;
 }

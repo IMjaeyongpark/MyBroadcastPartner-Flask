@@ -32,7 +32,7 @@ public class User_Service {
         User user = new User();
         user.setName(payload.getString("name"));
         user.set_id(payload.getString("email"));
-        user.setLocale(payload.getString("locale"));
+        //user.setLocale(payload.getString("locale"));
         user.setPicture(payload.getString("picture"));
         return mongoDB_Repository.insert_User(user);
     }
@@ -60,14 +60,9 @@ public class User_Service {
         }
     }
 
-    public String chat(String json){
-        JSONObject jsonObject = new JSONObject(json);
-        Chat chat = new Chat();
-        chat.setMessage(jsonObject.getString("message"));
-        chat.setDateTime(jsonObject.getString("dateTime"));
-        chat.setEmotion3(jsonObject.getInt("emotion3"));
-        chat.setEmotion7(jsonObject.getInt("emotion7"));
-        return "200";
+    //채팅 저장
+    public String chat(User user,Chat chat,String BCID,String name){
+        return mongoDB_Repository.chat(user,chat, BCID,name);
     }
 
     //방송 정보 가져오기
