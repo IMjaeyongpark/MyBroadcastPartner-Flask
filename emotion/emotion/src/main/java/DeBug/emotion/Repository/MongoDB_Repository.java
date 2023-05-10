@@ -53,24 +53,24 @@ public class MongoDB_Repository {
     //채팅 저장
     public String chat(User user,Chat chat, String BCID, String author_name) {
 
-        Year_Total_Data year_total = new Year_Total_Data();
+        YearTotalData year_total = new YearTotalData();
 
         year_total.setYear("2023");
         year_total.All_Emotion3[chat.getEmotion3()]++;
         year_total.All_Emotion7[chat.getEmotion7()]++;
         year_total.setUser(user);
 
-        Month_Total_Data month_total = new Month_Total_Data();
+        MonthTotalData month_total = new MonthTotalData();
         month_total.setMonth("3");
         month_total.All_Emotion3[chat.getEmotion3()]++;
         month_total.All_Emotion7[chat.getEmotion7()]++;
-        month_total.setYear_Total_Data(year_total);
+        month_total.setYearTotalData(year_total);
 
         Day_Total_Data day_total = new Day_Total_Data();
         day_total.setDay("25");
         day_total.All_Emotion3[chat.getEmotion3()]++;
         day_total.All_Emotion7[chat.getEmotion7()]++;
-        day_total.setMonth_total_data(month_total);
+        day_total.setMonthTotalData(month_total);
 
 
         //방송 정보로 시청자 정보 가져오기

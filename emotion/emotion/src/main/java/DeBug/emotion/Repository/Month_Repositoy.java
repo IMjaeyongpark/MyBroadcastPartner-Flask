@@ -1,8 +1,11 @@
 package DeBug.emotion.Repository;
 
-import DeBug.emotion.domain.Month_Total_Data;
-import DeBug.emotion.domain.User;
+import DeBug.emotion.domain.MonthTotalData;
+import DeBug.emotion.domain.YearTotalData;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface Month_Repositoy extends MongoRepository<Month_Total_Data, String> {
+import java.util.List;
+
+public interface Month_Repositoy extends MongoRepository<MonthTotalData, String> {
+    List<MonthTotalData> findByYearTotalData(YearTotalData year_total_data);
 }

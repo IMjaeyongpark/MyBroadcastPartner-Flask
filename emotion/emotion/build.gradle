@@ -27,6 +27,7 @@ dependencies {
 	implementation group: 'org.json', name: 'json', version: '20160810'
 	implementation 'org.mongodb:mongodb-driver-sync'
 	implementation 'org.apache.httpcomponents:httpclient'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 }
 
 tasks.named('test') {

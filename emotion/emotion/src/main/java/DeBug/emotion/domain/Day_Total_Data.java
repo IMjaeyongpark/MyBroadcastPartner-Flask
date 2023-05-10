@@ -19,5 +19,7 @@ public class Day_Total_Data {
     public int[] All_Emotion7 = new int[7];
     private int[] One_Hour_Emotion = new int[24];
     @DBRef
-    private Month_Total_Data month_total_data;
+    private MonthTotalData monthTotalData;
+    @DBRef
+    private YearTotalData yearTotalData;
 }
