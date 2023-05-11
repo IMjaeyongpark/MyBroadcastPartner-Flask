@@ -31,6 +31,7 @@ public class BroadCast {
     private Integer LowViewer;
     public int[] All_Emotion3 = new int[3];
     public  int[] All_Emotion7 = new int[3];
+    private int[] One_Hour_Emotion = new int[24];
     @DBRef
     private User user;
 }

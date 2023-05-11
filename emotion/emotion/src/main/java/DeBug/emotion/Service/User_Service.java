@@ -3,6 +3,7 @@ package DeBug.emotion.Service;
 import DeBug.emotion.Repository.MongoDB_Repository;
 import DeBug.emotion.domain.BroadCast;
 import DeBug.emotion.domain.Chat;
+import DeBug.emotion.domain.Total_Data;
 import DeBug.emotion.domain.User;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -63,6 +64,10 @@ public class User_Service {
     //채팅 저장
     public String chat(User user,Chat chat,String BCID,String name){
         return mongoDB_Repository.chat(user,chat, BCID,name);
+    }
+
+    public Total_Data test(User user){
+        return mongoDB_Repository.test(user);
     }
 
     //방송 정보 가져오기

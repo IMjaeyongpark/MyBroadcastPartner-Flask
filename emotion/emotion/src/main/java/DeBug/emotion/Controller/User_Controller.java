@@ -2,6 +2,7 @@ package DeBug.emotion.Controller;
 
 import DeBug.emotion.Service.User_Service;
 import DeBug.emotion.domain.Chat;
+import DeBug.emotion.domain.Total_Data;
 import DeBug.emotion.domain.User;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.json.JsonObject;
@@ -85,9 +86,9 @@ public class User_Controller {
     }
 
     @RequestMapping("/mypage")
-    public User mypage(@SessionAttribute(name = "User", required = false) User user) {
+    public Total_Data mypage(@SessionAttribute(name = "User", required = false) User user) {
 
-        return user;
+        return userService.test(user);
     }
 
 

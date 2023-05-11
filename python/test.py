@@ -1,47 +1,44 @@
-
-from flask import Flask
-from flask_cors import CORS
 import pytchat
 import pafy
 import json
-from flask_sse import sse
 
 import re
 
 import requests as requests
 
+youtube_api_key="AIzaSyBTh6c2K5gdPgQi22TlPKOUu75IJaLn594"
+client_id="h3mnzl35ep"
+client_secret="6UypzJ1ZtXiaRbnHYry9AkTewLS45TmfgjwNBYJq"
+pafy.set_api_key(youtube_api_key)
+url = "https://naveropenapi.apigw.ntruss.com/sentiment-analysis/v1/analyze"
 
-
-app = Flask(__name__)
-app.config["REDIS_URL"] = "redis://localhost"
-app.register_blueprint(sse, url_prefix='/stream')
-CORS(app)
-
-
-@app.route('/send')
-def send_message():
-    message = 'This is a test message'
-    sse.publish(message, type='message')
-    url = "http://localhost:8080/message"
-    data = {"message": "Hello, world!"}
-    response = requests.post(url, data=data)
-
-    if response.status_code == 200:
-        print("Message sent successfully")
-    else:
-        print(f"Failed to send message. Response code: {response.status_code}")
-    return 'Message sent'
-@app.route('/1/<BCID>')
-def index(BCID):
-
-    data = {"message": "c.message", "dateTime": "test date", "emotion3": 1, "emotion7": 2}
-    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-    response = requests.post('http://127.0.0.1:8080/User/chat?BCID='+BCID+
-                             '&name='+"test name", data=json.dumps(data), headers=headers)
-    print(response)
-    return 'Hello, Flask!'
+video_id = 'H-ecGmLkXLM'
+chat = pytchat.create(video_id=video_id)
 
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=9900)
+headers = {
+    "X-NCP-APIGW-API-KEY-ID": client_id,
+    "X-NCP-APIGW-API-KEY": client_secret,
+    "Content-Type":"application/json"
+}
+
+while chat.is_alive():
+
+    try:
+        data=chat.get()
+        items = data.items
+
+        for c in items:
+            message = re.sub(r"[^\uAC00-\uD7A3a-zA-Z\s]", "", c.message)
+            data = {
+                "content": message
+            }
+
+            response = requests.post(url, data=json.dumps(data), headers=headers)
+            text = response.json()
+            sen = text['sentences'][0]
+            print(f"{c.author.name}:{c.message} -> {message}   {sen['confidence']}")
+    except KeyboardInterrupt:
+        chat.terminate()
+        break

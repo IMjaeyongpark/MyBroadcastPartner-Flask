@@ -4,6 +4,7 @@ import DeBug.emotion.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -20,14 +21,11 @@ public class MongoDB_Repository {
     private Author_Repositoy mongoDBAuthorRepository;
     @Autowired
     private Year_Repositoy mongoDBYearRepositoy;
-    @Autowired
-    private Month_Repositoy mongoDBMonthRepositoy;
-    @Autowired
-    private Day_Repositoy mongoDBDayRepositoy;
 
 
     //회원정보가 없으면 db저장
     public User insert_User(User user) {
+
 
         User u = mongoDBUserRepository.findOneBy_id(user.get_id());
         //없으면 저장
@@ -60,17 +58,6 @@ public class MongoDB_Repository {
         year_total.All_Emotion7[chat.getEmotion7()]++;
         year_total.setUser(user);
 
-        MonthTotalData month_total = new MonthTotalData();
-        month_total.setMonth("3");
-        month_total.All_Emotion3[chat.getEmotion3()]++;
-        month_total.All_Emotion7[chat.getEmotion7()]++;
-        month_total.setYearTotalData(year_total);
-
-        Day_Total_Data day_total = new Day_Total_Data();
-        day_total.setDay("25");
-        day_total.All_Emotion3[chat.getEmotion3()]++;
-        day_total.All_Emotion7[chat.getEmotion7()]++;
-        day_total.setMonthTotalData(month_total);
 
 
         //방송 정보로 시청자 정보 가져오기
@@ -89,6 +76,15 @@ public class MongoDB_Repository {
         author.setBroadCast(sampleBC);
         author.setName(author_name);
         return save_chat(author, chat);
+    }
+
+    public Total_Data test(User user){
+        Total_Data td = new Total_Data();
+        List<BroadCast> bc = mongoDBBroadCastRepository.findByUser(user);
+        List<YearTotalData> year = mongoDBYearRepositoy.findByUser(user);
+        td.setBroadCasts(bc);
+        td.setYears(year);
+        return td;
     }
 
     private String save_chat(Author author, Chat chat) {

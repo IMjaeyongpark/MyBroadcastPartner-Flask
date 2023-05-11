@@ -13,9 +13,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 public class Chat {
 
-    private String DateTime;
-    private String Message;
-    private int Emotion3;
-    private int Emotion7;
+    private String dateTime;
+    private String message;
+    private int emotion3;
+    private int emotion7;
 
 }

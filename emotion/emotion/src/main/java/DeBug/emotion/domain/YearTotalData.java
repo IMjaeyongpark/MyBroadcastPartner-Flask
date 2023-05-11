@@ -17,6 +17,8 @@ public class YearTotalData {
     private String Year;
     public int[] All_Emotion3 = new int[3];
     public int[] All_Emotion7 = new int[7];
+
+    public MonthTotalData[] monthTotalData = new MonthTotalData[12];
     @DBRef
     private User user;
 }
