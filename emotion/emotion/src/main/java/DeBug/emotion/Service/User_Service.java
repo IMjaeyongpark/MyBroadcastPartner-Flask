@@ -66,8 +66,8 @@ public class User_Service {
         return mongoDB_Repository.chat(user,chat, BCID,name);
     }
 
-    public Total_Data test(User user){
-        return mongoDB_Repository.test(user);
+    public Total_Data mypageData(User user){
+        return mongoDB_Repository.mypageData(user);
     }
 
     //방송 정보 가져오기

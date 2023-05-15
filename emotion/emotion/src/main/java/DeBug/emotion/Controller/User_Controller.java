@@ -5,8 +5,6 @@ import DeBug.emotion.domain.Chat;
 import DeBug.emotion.domain.Total_Data;
 import DeBug.emotion.domain.User;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.json.JsonObject;
-import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,6 +37,7 @@ public class User_Controller {
         User user = userService.getSubject(payload);
         if (user == null) return "400";
         try {
+            //세션 저장
             HttpSession session = request.getSession();
             session.setAttribute("User", user);
             response.setHeader("User", "User");
@@ -55,15 +54,12 @@ public class User_Controller {
     public String identification(@SessionAttribute(name = "User", required = false) User user,
                                  @RequestParam("URI") String URI) {
 
-        System.out.println(user.get_id());
-
         //URI에서 BCID추출
         String BCID = URI.replace("https://", "").replace("www.", "")
                 .replace("youtube.com/watch?v=", "");
 
         return userService.identification(user, URI, BCID);
     }
-
 
     //로그아웃 세션 정보 삭제
     @RequestMapping("/logout")
@@ -81,6 +77,7 @@ public class User_Controller {
     public String chat(@SessionAttribute(name = "User", required = false) User user,
                        @RequestBody Chat chat, @RequestParam("BCID") String BCID,
                        @RequestParam("name") String name) {
+
         userService.chat(user,chat, BCID, name);
         return "200";
     }
@@ -88,20 +85,6 @@ public class User_Controller {
     @RequestMapping("/mypage")
     public Total_Data mypage(@SessionAttribute(name = "User", required = false) User user) {
 
-        return userService.test(user);
-    }
-
-
-    //세션 업데이트
-    private String save_session(User user, HttpServletRequest request) {
-        try {
-            HttpSession session = request.getSession();
-            session.setAttribute("User", user);
-
-            return "200";
-        } catch (Exception e) {
-            System.out.println("세션 저장 실패");
-            return "400";
-        }
+        return userService.mypageData(user);
     }
 }

@@ -12,21 +12,14 @@ import org.json.JSONObject;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.codec.ServerSentEvent;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @RestController
 @Slf4j
@@ -39,9 +32,30 @@ public class test {
     public String sss(@RequestBody Chat chat){
         System.out.println("hi");
         System.out.println(chat.getMessage());
+        System.out.println(chat.getDateTime());
 
         return "200";
     }
+
+    @GetMapping(value = "/sse/{BCID}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> sse(@PathVariable String BCID) {
+
+        return Flux.create(sink -> {
+            try {
+                String url = "http://localhost:9900/sse/" + BCID;
+                WebClient client = WebClient.create(url);
+
+                client.get()
+                        .retrieve()
+                        .bodyToFlux(String.class)
+                        .subscribe(sink::next, sink::error);
+
+            } catch (Exception e) {
+                sink.error(e);
+            }
+        });
+    }
+
     @RequestMapping("/receive-sse")
     @ResponseBody
     public void receiveSSE(@RequestParam("BCID") String BCID, HttpServletResponse response) throws IOException {
@@ -108,6 +122,5 @@ public class test {
         }).start();
         return ResponseEntity.ok(emitter);
     }
-
 
 }

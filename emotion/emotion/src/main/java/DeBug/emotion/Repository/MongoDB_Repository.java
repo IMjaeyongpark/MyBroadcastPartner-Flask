@@ -4,7 +4,6 @@ import DeBug.emotion.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -49,16 +48,38 @@ public class MongoDB_Repository {
     }
 
     //채팅 저장
-    public String chat(User user,Chat chat, String BCID, String author_name) {
+    public String chat(User user, Chat chat, String BCID, String author_name) {
 
-        YearTotalData year_total = new YearTotalData();
+        String[] date = chat.getDateTime().split("-");
 
-        year_total.setYear("2023");
-        year_total.All_Emotion3[chat.getEmotion3()]++;
-        year_total.All_Emotion7[chat.getEmotion7()]++;
-        year_total.setUser(user);
+        List<YearTotalData> yearList = mongoDBYearRepositoy.findByUser(user);
+        YearTotalData yearTotalData = new YearTotalData();
+        yearTotalData.setYear(date[0]);
 
+        for (int i = 0; i < yearList.size(); i++) {
+            if (date[0] == yearList.get(i).getYear()) {
+                yearTotalData = yearList.get(i);
+                yearTotalData.setUser(user);
+                break;
+            }
+        }
 
+        yearTotalData.All_Emotion3[chat.getEmotion3()]++;
+        yearTotalData.All_Emotion7[chat.getEmotion7()]++;
+        int month = Integer.parseInt(date[1]);
+        int day = Integer.parseInt(date[2]);
+        if (yearTotalData.monthTotalData[month] == null) {
+            yearTotalData.monthTotalData[month] = new MonthTotalData();
+        }
+        yearTotalData.monthTotalData[month].getAll_Emotion3()[chat.getEmotion3()]++;
+        yearTotalData.monthTotalData[month].getAll_Emotion7()[chat.getEmotion7()]++;
+        if (yearTotalData.monthTotalData[month].getDay_total_data()[day] == null) {
+            yearTotalData.monthTotalData[month].getDay_total_data()[day] = new DayTotalData();
+        }
+        yearTotalData.monthTotalData[month].getDay_total_data()[day].getAll_Emotion3()[chat.getEmotion3()]++;
+        yearTotalData.monthTotalData[month].getDay_total_data()[day].getAll_Emotion7()[chat.getEmotion7()]++;
+
+        mongoDBYearRepositoy.save(yearTotalData);
 
         //방송 정보로 시청자 정보 가져오기
         BroadCast sampleBC = new BroadCast();
@@ -78,7 +99,7 @@ public class MongoDB_Repository {
         return save_chat(author, chat);
     }
 
-    public Total_Data test(User user){
+    public Total_Data mypageData(User user) {
         Total_Data td = new Total_Data();
         List<BroadCast> bc = mongoDBBroadCastRepository.findByUser(user);
         List<YearTotalData> year = mongoDBYearRepositoy.findByUser(user);
