@@ -54,10 +54,10 @@ public class MongoDB_Repository {
 
         List<YearTotalData> yearList = mongoDBYearRepositoy.findByUser(user);
         YearTotalData yearTotalData = new YearTotalData();
-        yearTotalData.setYear(date[0]);
+        yearTotalData.set_id(date[0]);
 
         for (int i = 0; i < yearList.size(); i++) {
-            if (date[0] == yearList.get(i).getYear()) {
+            if (yearList.get(i).get_id().equals(date[0])) {
                 yearTotalData = yearList.get(i);
                 yearTotalData.setUser(user);
                 break;
@@ -66,8 +66,8 @@ public class MongoDB_Repository {
 
         yearTotalData.All_Emotion3[chat.getEmotion3()]++;
         yearTotalData.All_Emotion7[chat.getEmotion7()]++;
-        int month = Integer.parseInt(date[1]);
-        int day = Integer.parseInt(date[2]);
+        int month = Integer.parseInt(date[1]) - 1;
+        int day = Integer.parseInt(date[2]) - 1;
         if (yearTotalData.monthTotalData[month] == null) {
             yearTotalData.monthTotalData[month] = new MonthTotalData();
         }

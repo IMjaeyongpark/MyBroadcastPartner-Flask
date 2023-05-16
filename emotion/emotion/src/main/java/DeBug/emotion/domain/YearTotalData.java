@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 public class YearTotalData {
     @Id
-    private String Year;
+    private String _id;
     public int[] All_Emotion3 = new int[3];
     public int[] All_Emotion7 = new int[7];
     public MonthTotalData[] monthTotalData = new MonthTotalData[12];
