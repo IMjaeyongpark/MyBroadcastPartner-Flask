@@ -18,6 +18,7 @@ public class MongoDB_Repository {
 
     @Autowired
     private Author_Repositoy mongoDBAuthorRepository;
+
     @Autowired
     private Year_Repositoy mongoDBYearRepositoy;
 
@@ -50,8 +51,10 @@ public class MongoDB_Repository {
     //채팅 저장
     public String chat(User user, Chat chat, String BCID, String author_name) {
 
-        String[] date = chat.getDateTime().split("-");
+        //날짜 년,월,일 자르기
+        String[] date = chat.getDateTime().split("-| ");
 
+        //유저 정보로 년 정보 찾기
         List<YearTotalData> yearList = mongoDBYearRepositoy.findByUser(user);
         YearTotalData yearTotalData = new YearTotalData();
         yearTotalData.set_id(date[0]);
@@ -81,6 +84,13 @@ public class MongoDB_Repository {
 
         mongoDBYearRepositoy.save(yearTotalData);
 
+        //방송 정보 저장
+        BroadCast BC = mongoDBBroadCastRepository.findById(BCID).get();
+        BC.All_Emotion3[chat.getEmotion3()]++;
+        BC.All_Emotion7[chat.getEmotion7()]++;
+        mongoDBBroadCastRepository.save(BC);
+
+
         //방송 정보로 시청자 정보 가져오기
         BroadCast sampleBC = new BroadCast();
         sampleBC.set_id(BCID);
@@ -100,6 +110,7 @@ public class MongoDB_Repository {
     }
 
     public Total_Data mypageData(User user) {
+        //사용자의 정보들을 담을 객체
         Total_Data td = new Total_Data();
         List<BroadCast> bc = mongoDBBroadCastRepository.findByUser(user);
         List<YearTotalData> year = mongoDBYearRepositoy.findByUser(user);
@@ -108,6 +119,7 @@ public class MongoDB_Repository {
         return td;
     }
 
+    //정보 저장
     private String save_chat(Author author, Chat chat) {
         author.chat.add(chat);
         author.All_Emotion3[chat.getEmotion3()]++;

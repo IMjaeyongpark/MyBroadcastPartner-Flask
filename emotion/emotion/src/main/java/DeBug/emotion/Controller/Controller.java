@@ -1,6 +1,6 @@
 package DeBug.emotion.Controller;
 
-import DeBug.emotion.Service.User_Service;
+import DeBug.emotion.Service.Service;
 import DeBug.emotion.domain.Chat;
 import DeBug.emotion.domain.Total_Data;
 import DeBug.emotion.domain.User;
@@ -9,16 +9,15 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/User")
 @Slf4j
 @CrossOrigin("*")
-public class User_Controller {
+public class Controller {
 
-    public User_Controller(User_Service userService) {
+    public Controller(Service userService) {
         this.userService = userService;
     }
 
-    private final User_Service userService;
+    private final Service userService;
 
     //토큰 받아오기
     @GetMapping("/find")
@@ -51,7 +50,7 @@ public class User_Controller {
     public String chat(@RequestParam("email") String email,
                        @RequestBody Chat chat, @RequestParam("BCID") String BCID,
                        @RequestParam("name") String name) {
-
+        System.out.println(" asdf");
         User user = new User();
         user.set_id(email);
         userService.chat(user,chat, BCID, name);

@@ -14,9 +14,9 @@ import org.json.JSONObject;
 
 import java.util.Base64;
 
-public class User_Service {
+public class Service {
 
-    public User_Service(MongoDB_Repository mongoDB_Repository) {
+    public Service(MongoDB_Repository mongoDB_Repository) {
         this.mongoDB_Repository = mongoDB_Repository;
     }
 
