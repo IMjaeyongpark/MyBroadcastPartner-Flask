@@ -11,10 +11,13 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Base64;
 
 public class Service {
+    @Value("${java.file.youtubeAPIKey}") // 변수 파일에 등록된 java.file.test 값 가져오기
+    String youtubeAPIKey;
 
     public Service(MongoDB_Repository mongoDB_Repository) {
         this.mongoDB_Repository = mongoDB_Repository;
@@ -72,7 +75,8 @@ public class Service {
 
     //방송 정보 가져오기
     private JSONObject get_YouTubeBC_Data(String BCID) {
-        String API_KEY = "AIzaSyATIpI3znMnt3r9-9N3zr6ijtqV8ySiPwQ";
+        String API_KEY = youtubeAPIKey;
+        System.out.println("API_KEY: " + API_KEY);
         String URI = "https://www.googleapis.com/youtube/v3/videos?id=" + BCID +
                 "&key=" + API_KEY + "&part=snippet,contentDetails,statistics,status";
 

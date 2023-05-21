@@ -50,7 +50,6 @@ public class Controller {
     public String chat(@RequestParam("email") String email,
                        @RequestBody Chat chat, @RequestParam("BCID") String BCID,
                        @RequestParam("name") String name) {
-        System.out.println(" asdf");
         User user = new User();
         user.set_id(email);
         userService.chat(user,chat, BCID, name);
