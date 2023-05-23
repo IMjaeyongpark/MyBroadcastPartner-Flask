@@ -63,4 +63,9 @@ public class Controller {
         user.set_id(email);
         return userService.mypageData(user);
     }
+
+    @GetMapping("/test")
+    public String test() {
+        return "200";
+    }
 }
