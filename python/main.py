@@ -5,8 +5,6 @@ import json
 import pytchat
 import pafy
 import re
-import time
-import random
 
 app = Flask(__name__)
 CORS(app)
