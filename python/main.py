@@ -8,8 +8,6 @@ import re
 import time
 import random
 
-# 세션 미들웨어 등록
-
 app = Flask(__name__)
 CORS(app)
 
