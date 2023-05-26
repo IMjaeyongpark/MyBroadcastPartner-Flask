@@ -30,7 +30,7 @@ def sse(BCID, Email):
         }
         preName = ""
         preDate = ""
-        while chat.is_alive():
+        while True:
             try:
                 data = chat.get()
                 items = data.items
@@ -42,7 +42,6 @@ def sse(BCID, Email):
 
                         text = response.json()
                         header = {"Content-type": "application/json", "Accept": "text/plain"}
-                        print("hi")
                         if 'sentences' in text:
                             sen = text['sentences'][0]
                             data2 = {

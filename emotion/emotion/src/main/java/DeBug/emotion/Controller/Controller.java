@@ -64,10 +64,4 @@ public class Controller {
         return userService.mypageData(user);
     }
 
-    @GetMapping("/test")
-    public String test() {
-
-        System.out.println("hi");
-        return "200";
-    }
 }
