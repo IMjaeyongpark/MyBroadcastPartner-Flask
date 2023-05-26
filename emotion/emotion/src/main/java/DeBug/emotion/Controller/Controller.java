@@ -66,6 +66,8 @@ public class Controller {
 
     @GetMapping("/test")
     public String test() {
+
+        System.out.println("hi");
         return "200";
     }
 }

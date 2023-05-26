@@ -3,6 +3,7 @@ package DeBug.emotion.Repository;
 import DeBug.emotion.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDate;
 
 import java.util.List;
 
@@ -53,15 +54,15 @@ public class MongoDB_Repository {
 
         //날짜 년,월,일 자르기
         String[] date = chat.getDateTime().split("-| ");
-        System.out.println(date[0]);
         //유저 정보로 년 정보 찾기
         List<YearTotalData> yearList = mongoDBYearRepositoy.findByUser(user);
         YearTotalData yearTotalData = new YearTotalData();
         yearTotalData.set_id(date[0]);
         yearTotalData.setUser(user);
+        LocalDate now = LocalDate.now();
 
         for (int i = 0; i < yearList.size(); i++) {
-            if (yearList.get(i).get_id().equals(date[0])) {
+            if (yearList.get(i).get_id().equals(String.valueOf(now.getYear()))) {
                 yearTotalData = yearList.get(i);
                 yearTotalData.setUser(user);
                 break;
@@ -98,7 +99,8 @@ public class MongoDB_Repository {
         List<Author> authorList = mongoDBAuthorRepository.findByBroadCast(sampleBC);
 
         //시청자 채팅 저장
-        for (Author author : authorList) {
+        for (int i = 0; i < authorList.size(); i++) {
+            Author author = authorList.get(i);
             if (author.getName().equals(author_name)) {
                 return save_chat(author, chat);
             }

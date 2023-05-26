@@ -17,8 +17,8 @@ import java.util.List;
 @NoArgsConstructor
 public class Author {
 
-    @Id
     //시청자 이름
+    @Id
     private String name;
     public int[] All_Emotion3 = new int[3];
     public int[] All_Emotion7 = new int[7];
