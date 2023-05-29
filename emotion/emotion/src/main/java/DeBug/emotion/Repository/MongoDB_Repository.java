@@ -54,6 +54,8 @@ public class MongoDB_Repository {
 
         //날짜 년,월,일 자르기
         String[] date = chat.getDateTime().split("-| ");
+        String[] time = date[3].split(":");
+
         //유저 정보로 년 정보 찾기
         List<YearTotalData> yearList = mongoDBYearRepositoy.findByUser(user);
         YearTotalData yearTotalData = new YearTotalData();
@@ -83,6 +85,18 @@ public class MongoDB_Repository {
         }
         yearTotalData.monthTotalData[month].getDay_total_data()[day].getAll_Emotion3()[chat.getEmotion3()]++;
         yearTotalData.monthTotalData[month].getDay_total_data()[day].getAll_Emotion7()[chat.getEmotion7()]++;
+
+        int hour = Integer.parseInt(time[0])-1;
+
+        if(yearTotalData.monthTotalData[month].getDay_total_data()[day].
+                One_Hour_Emotion[hour]==null){
+            yearTotalData.monthTotalData[month].getDay_total_data()[day].
+                    One_Hour_Emotion[hour]=new HourData();
+        }
+        yearTotalData.monthTotalData[month].getDay_total_data()[day].
+                One_Hour_Emotion[hour].All_Emotion3[chat.getEmotion3()]++;
+        yearTotalData.monthTotalData[month].getDay_total_data()[day].
+                One_Hour_Emotion[hour].All_Emotion7[chat.getEmotion7()]++;
 
         mongoDBYearRepositoy.save(yearTotalData);
 

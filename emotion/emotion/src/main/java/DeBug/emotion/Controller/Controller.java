@@ -57,7 +57,6 @@ public class Controller {
     }
 
     @GetMapping("/mypage")
-    @ResponseBody
     public Total_Data mypage(@RequestParam("email")String email) {
         User user = new User();
         user.set_id(email);

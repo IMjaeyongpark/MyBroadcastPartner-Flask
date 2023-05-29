@@ -11,7 +11,7 @@ CORS(app)
 
 
 running = True
-
+print("실행레쓰고")
 
 @app.route('/<BCID>/<Email>')
 def sse(BCID, Email):
@@ -30,26 +30,34 @@ def sse(BCID, Email):
         }
         preName = ""
         preDate = ""
-        while True:
+        while chat.is_alive():
             try:
                 data = chat.get()
                 items = data.items
                 for c in items:
                     if not (preDate == c.datetime and preName == c.author.name):
+                        print(c.author.name, " : ", c.message)
                         message = re.sub(r"[^\uAC00-\uD7A3a-zA-Z\s]", "", c.message)
+
                         data = {"content": message}
                         response = requests.post(url, data=json.dumps(data), headers=headers)
 
                         text = response.json()
                         header = {"Content-type": "application/json", "Accept": "text/plain"}
+                        mes = re.sub(r':[^:]+:', '', c.message)
                         if 'sentences' in text:
                             sen = text['sentences'][0]
+                            emotion7 = requests.get(
+                                "http://10.20.92.37:9090/ai/"+c.message
+                                ).json()
+                            print("emotion7 : ",emotion7)
+
                             data2 = {
                                 "author": c.author.name,
                                 "dateTime": c.datetime,
-                                "message": c.message,
+                                "message": mes,
                                 "emotion3": jsonmax(sen['confidence']),
-                                "emotion7": 2
+                                "emotion7": emotion7
                             }
                             yield f"data:{data2}\n\n"
                             requests.get(
@@ -59,12 +67,12 @@ def sse(BCID, Email):
                             data2 = {
                                 "author": c.author.name,
                                 "dateTime": c.datetime,
-                                "message": c.message,
+                                "message": mes,
                                 "emotion3": 2,
-                                "emotion7": 2
+                                "emotion7": emotion7
                             }
 
-                            f"data:{data2}\n\n"
+                            yield f"data:{data2}\n\n"
                             URI = "http://localhost:8080/chat?email=" + Email + "&BCID=" + BCID + "&name=" + c.author.name
                             response = requests.get(URI, data=json.dumps(data2), headers=header)
 
@@ -85,4 +93,4 @@ def jsonmax(data):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True, port=9900, threaded=False, processes=10)
+    app.run(host="0.0.0.0", debug=True, port=9090, threaded=False, processes=10)
