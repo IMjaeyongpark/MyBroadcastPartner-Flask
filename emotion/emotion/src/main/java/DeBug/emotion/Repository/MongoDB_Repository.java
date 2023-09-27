@@ -3,10 +3,11 @@ package DeBug.emotion.Repository;
 import DeBug.emotion.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 
+import java.util.Collections;
 import java.util.List;
-
 
 @Transactional
 public class MongoDB_Repository {
@@ -26,7 +27,6 @@ public class MongoDB_Repository {
 
     //회원정보가 없으면 db저장
     public User insert_User(User user) {
-
 
         User u = mongoDBUserRepository.findOneBy_id(user.get_id());
         //없으면 저장
@@ -59,12 +59,14 @@ public class MongoDB_Repository {
         //유저 정보로 년 정보 찾기
         List<YearTotalData> yearList = mongoDBYearRepositoy.findByUser(user);
         YearTotalData yearTotalData = new YearTotalData();
-        yearTotalData.set_id(date[0]);
+        yearTotalData.set_id(date[0] + user.get_id());
         yearTotalData.setUser(user);
         LocalDate now = LocalDate.now();
 
+        String cury = now.getYear() + user.get_id();
+
         for (int i = 0; i < yearList.size(); i++) {
-            if (yearList.get(i).get_id().equals(String.valueOf(now.getYear()))) {
+            if (yearList.get(i).get_id().equals(cury)) {
                 yearTotalData = yearList.get(i);
                 yearTotalData.setUser(user);
                 break;
@@ -86,18 +88,19 @@ public class MongoDB_Repository {
         yearTotalData.monthTotalData[month].getDay_total_data()[day].getAll_Emotion3()[chat.getEmotion3()]++;
         yearTotalData.monthTotalData[month].getDay_total_data()[day].getAll_Emotion7()[chat.getEmotion7()]++;
 
-        int hour = Integer.parseInt(time[0])-1;
+        int hour = Integer.parseInt(time[0]) - 1;
 
-        if(yearTotalData.monthTotalData[month].getDay_total_data()[day].
-                One_Hour_Emotion[hour]==null){
+        if (yearTotalData.monthTotalData[month].getDay_total_data()[day].
+                One_Hour_Emotion[hour] == null) {
             yearTotalData.monthTotalData[month].getDay_total_data()[day].
-                    One_Hour_Emotion[hour]=new HourData();
+                    One_Hour_Emotion[hour] = new HourData();
         }
         yearTotalData.monthTotalData[month].getDay_total_data()[day].
                 One_Hour_Emotion[hour].All_Emotion3[chat.getEmotion3()]++;
         yearTotalData.monthTotalData[month].getDay_total_data()[day].
                 One_Hour_Emotion[hour].All_Emotion7[chat.getEmotion7()]++;
 
+        yearTotalData.setUser(user);
         mongoDBYearRepositoy.save(yearTotalData);
 
         //방송 정보 저장
@@ -131,6 +134,7 @@ public class MongoDB_Repository {
         Total_Data td = new Total_Data();
         List<BroadCast> bc = mongoDBBroadCastRepository.findByUser(user);
         List<YearTotalData> year = mongoDBYearRepositoy.findByUser(user);
+        Collections.sort(year, (o1,o2) ->  Integer.parseInt(o1.get_id().substring(0,4))- Integer.parseInt(o2.get_id().substring(0,4)));
         td.setBroadCasts(bc);
         td.setYears(year);
         return td;
@@ -148,6 +152,43 @@ public class MongoDB_Repository {
             System.out.println("채팅 저장 실패");
             return "400";
         }
+    }
+
+    public String testdata(){
+        int[] a = {31,28,31,30,31,30,31,31,30,31,30,31};
+
+        YearTotalData y = new YearTotalData();
+        y.set_id("2022dbsruaqls123@gmail.com");
+        User user = new User();
+        user.set_id("dbsruaqls123@gmail.com");
+        y.setUser(user);
+
+
+        for(int i = 3;i<12;i++){
+            y.getMonthTotalData()[i] = new MonthTotalData();
+            for(int j =0;j<a[i];j++){
+                y.getMonthTotalData()[i].day_total_data[j] = new DayTotalData();
+                for(int q=0;q<24;q++) {
+                    y.getMonthTotalData()[i].day_total_data[j].One_Hour_Emotion[q] = new HourData();
+                    for (int k = 0; k < 3; k++) {
+                        int data = (int)(Math.random()*30);
+                        y.getMonthTotalData()[i].day_total_data[j].One_Hour_Emotion[q].All_Emotion3[k] = data;
+                        y.getMonthTotalData()[i].day_total_data[j].All_Emotion3[k] += data;
+                        y.getMonthTotalData()[i].All_Emotion3[k] += data;
+                        y.All_Emotion3[k] += data;                    }
+                    for (int k = 0; k < 7; k++) {
+                        int data = (int)(Math.random()*30);
+                        y.getMonthTotalData()[i].day_total_data[j].One_Hour_Emotion[q].All_Emotion7[k] = data;
+                        y.getMonthTotalData()[i].day_total_data[j].All_Emotion7[k] += data;
+                        y.getMonthTotalData()[i].All_Emotion7[k] += data;
+                        y.All_Emotion7[k] += data;
+                    }
+                }
+            }
+        }
+        mongoDBYearRepositoy.save(y);
+
+        return "200";
     }
 
 

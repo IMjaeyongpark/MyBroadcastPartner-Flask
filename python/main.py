@@ -1,14 +1,16 @@
 from flask import Flask, Response
 from flask_cors import CORS
+
 import requests as requests
 import json
 import pytchat
 import pafy
 import re
+from werkzeug.exceptions import ClientDisconnected
+
 
 app = Flask(__name__)
 CORS(app)
-
 
 running = True
 print("실행레쓰고")
@@ -16,11 +18,12 @@ print("실행레쓰고")
 @app.route('/<BCID>/<Email>')
 def sse(BCID, Email):
     def generate(BCID, Email):
+
         chat = pytchat.create(video_id=BCID)
-        print(Email)
+
         youtube_api_key = "AIzaSyBTh6c2K5gdPgQi22TlPKOUu75IJaLn594"
-        client_id = "h3mnzl35ep"
-        client_secret = "6UypzJ1ZtXiaRbnHYry9AkTewLS45TmfgjwNBYJq"
+        client_id = "qefqu0dlxn"
+        client_secret = "fYXO7VBssTUEfeLjEY8h7KUfqsisk5XYrWjbO5Py"
         pafy.set_api_key(youtube_api_key)
         url = "https://naveropenapi.apigw.ntruss.com/sentiment-analysis/v1/analyze"
         headers = {
@@ -36,21 +39,26 @@ def sse(BCID, Email):
                 items = data.items
                 for c in items:
                     if not (preDate == c.datetime and preName == c.author.name):
-                        print(c.author.name, " : ", c.message)
                         message = re.sub(r"[^\uAC00-\uD7A3a-zA-Z\s]", "", c.message)
-
-                        data = {"content": message}
+                        data = {"content": c.message}
                         response = requests.post(url, data=json.dumps(data), headers=headers)
-
                         text = response.json()
                         header = {"Content-type": "application/json", "Accept": "text/plain"}
                         mes = re.sub(r':[^:]+:', '', c.message)
                         if 'sentences' in text:
+                            data2 = {
+                                "author": c.author.name,
+                                "dateTime": c.datetime,
+                                "message": mes,
+                                "emotion3": 0,
+                                "emotion7": 0
+                            }
+                            yield f"data:{data2}\n\n"
+                            """
                             sen = text['sentences'][0]
                             emotion7 = requests.get(
-                                "http://10.20.92.37:9090/ai/"+c.message
+                                "http://10.20.102.62:2942/ai/"+c.message
                                 ).json()
-                            print("emotion7 : ",emotion7)
 
                             data2 = {
                                 "author": c.author.name,
@@ -67,21 +75,22 @@ def sse(BCID, Email):
                             data2 = {
                                 "author": c.author.name,
                                 "dateTime": c.datetime,
-                                "message": mes,
+                                "message": c.message,
                                 "emotion3": 2,
                                 "emotion7": emotion7
                             }
 
                             yield f"data:{data2}\n\n"
                             URI = "http://localhost:8080/chat?email=" + Email + "&BCID=" + BCID + "&name=" + c.author.name
-                            response = requests.get(URI, data=json.dumps(data2), headers=header)
+                            response = requests.get(URI, data=json.dumps(data2), headers=header)"""
 
                         preName = c.author.name
                         preDate = c.datetime
-            except KeyboardInterrupt:
+            except ClientDisconnected:
+                print("클라이언트 연결 종료")
                 break
 
-    return Response(generate( BCID, Email), mimetype='text/event-stream')
+    return Response(generate(BCID, Email), mimetype='text/event-stream')
 
 def jsonmax(data):
     max_value = max(data.values())
@@ -91,6 +100,5 @@ def jsonmax(data):
             return index
         index += 1
 
-
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True, port=9090, threaded=False, processes=10)
+    app.run(host="0.0.0.0", debug=True, port=8801, threaded=False, processes=10)

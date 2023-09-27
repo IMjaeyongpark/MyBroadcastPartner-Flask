@@ -104,4 +104,10 @@ public class Service {
         }
     }
 
+    public String testdata(){
+        mongoDB_Repository.testdata();
+        return "200";
+    }
+
+
 }

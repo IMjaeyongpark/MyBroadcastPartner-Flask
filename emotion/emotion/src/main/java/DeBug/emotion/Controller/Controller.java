@@ -63,4 +63,12 @@ public class Controller {
         return userService.mypageData(user);
     }
 
+    @GetMapping("/testdata")
+    public String testdata(){
+
+        userService.testdata();
+
+        return "200";
+    }
+
 }
