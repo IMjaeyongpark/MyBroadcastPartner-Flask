@@ -7,6 +7,7 @@ import pytchat
 import pafy
 import re
 from werkzeug.exceptions import ClientDisconnected
+from datetime import datetime
 
 
 app = Flask(__name__)
@@ -22,6 +23,7 @@ def sse(BCID, Email):
         chat = pytchat.create(video_id=BCID)
 
         youtube_api_key = "AIzaSyBTh6c2K5gdPgQi22TlPKOUu75IJaLn594"
+        #방송 시작시간 가져오기
         video_url = 'https://www.googleapis.com/youtube/v3/videos'
         video_params = {
             'part': 'snippet',
@@ -30,7 +32,10 @@ def sse(BCID, Email):
         }
         video_r = requests.get(video_url, video_params)
         video_data = json.loads(json.dumps(video_r.json()))
-        BC_published = video_data["items"][0]["snippet"]["publishedAt"]
+        published = video_data["items"][0]["snippet"]["publishedAt"]
+        # datetime.timedelta타입으로 변환
+        published = datetime.strptime(published, '%Y-%m-%dT%H:%M:%SZ')
+        print(published)
 
         client_id = "qefqu0dlxn"
         client_secret = "fYXO7VBssTUEfeLjEY8h7KUfqsisk5XYrWjbO5Py"
