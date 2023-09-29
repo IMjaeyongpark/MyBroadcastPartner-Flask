@@ -22,6 +22,16 @@ def sse(BCID, Email):
         chat = pytchat.create(video_id=BCID)
 
         youtube_api_key = "AIzaSyBTh6c2K5gdPgQi22TlPKOUu75IJaLn594"
+        video_url = 'https://www.googleapis.com/youtube/v3/videos'
+        video_params = {
+            'part': 'snippet',
+            'id': BCID,
+            'key': youtube_api_key
+        }
+        video_r = requests.get(video_url, video_params)
+        video_data = json.loads(json.dumps(video_r.json()))
+        BC_published = video_data["items"][0]["snippet"]["publishedAt"]
+
         client_id = "qefqu0dlxn"
         client_secret = "fYXO7VBssTUEfeLjEY8h7KUfqsisk5XYrWjbO5Py"
         pafy.set_api_key(youtube_api_key)
@@ -39,6 +49,16 @@ def sse(BCID, Email):
                 items = data.items
                 for c in items:
                     if not (preDate == c.datetime and preName == c.author.name):
+                        mes = re.sub(r':[^:]+:', '', c.message)
+                        data2 = {
+                            "author": c.author.name,
+                            "dateTime": c.datetime,
+                            "message": mes,
+                            "emotion3": 0,
+                            "emotion7": 0
+                        }
+                        yield f"data:{data2}\n\n"
+                        """
                         message = re.sub(r"[^\uAC00-\uD7A3a-zA-Z\s]", "", c.message)
                         data = {"content": c.message}
                         response = requests.post(url, data=json.dumps(data), headers=headers)
@@ -46,15 +66,8 @@ def sse(BCID, Email):
                         header = {"Content-type": "application/json", "Accept": "text/plain"}
                         mes = re.sub(r':[^:]+:', '', c.message)
                         if 'sentences' in text:
-                            data2 = {
-                                "author": c.author.name,
-                                "dateTime": c.datetime,
-                                "message": mes,
-                                "emotion3": 0,
-                                "emotion7": 0
-                            }
-                            yield f"data:{data2}\n\n"
-                            """
+                            
+                            
                             sen = text['sentences'][0]
                             emotion7 = requests.get(
                                 "http://10.20.102.62:2942/ai/"+c.message
