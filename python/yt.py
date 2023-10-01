@@ -1,29 +1,29 @@
 import requests
 
-token = "eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIxOTYwMDA5ODUyODAtaWpydmRvMmpuMDB2cXBsYW5kdTdxYThnazRtN2lzMGUuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIxOTYwMDA5ODUyOD"
 key = "AIzaSyATIpI3znMnt3r9-9N3zr6ijtqV8ySiPwQ"
 try:
     #방송 id로 채널 정보(채널id)가져오기
     video_url = 'https://www.googleapis.com/youtube/v3/videos'
     video_params = {
         'part': 'snippet',
-        'id': "nPS6Kbc9prE",
+        'id': "MV0kkZkcASs",
         'key': key
     }
     video_r = requests.get(video_url, video_params)
     video_data = video_r.json()
+    print(video_data['items'][0]['snippet']['channelId'])
 
     #채널id로 방송 정보 가져오기
     channel_url = 'https://www.googleapis.com/youtube/v3/channels'
     channel_params = {
         'part': 'statistics',
-        'managedByMe':True,
-        'id': video_data['items'][0]['snippet']['channelId'],
-        'key': key,
-        "onBehalfOfContentOwner":token
+        'mine':True,
+
     }
-    channel_r = requests.get(channel_url, channel_params)
-    channel_data = channel_r.json()
-    print(channel_data)
+    access_token = "ya29.a0AfB_byBlWA_x0HlTwleXrDLb_R5rbfPoIo1o3zkgBoJY78jWzQpGKxF2bSPbdisdQcGhSL4M9vlZ7heUcCGW2eS_hzP3r-oO2BNLl-i6GiNhTXotZYkiO8Uax7x8l5bCMUcufA2up7GWFr8u-oW6tErsUBBuxgrqxNYaCgYKAWwSARMSFQGOcNnCEwKdMZz3xILouWZrwz_ByA0170"
+    headers = {'Authorization': f'Bearer {access_token}'}
+    api_url = 'https://www.googleapis.com/youtube/v3/channels'
+    response = requests.get(api_url,params=channel_params,headers=headers)
+    print(response.json())
 except:
     print("에러남.")

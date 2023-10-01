@@ -22,7 +22,7 @@ public class Controller {
     //토큰 받아오기
     @GetMapping("/find")
     public String find_User(@RequestParam("id_token") String idToken) {
-
+        System.out.println(idToken);
         //jwt PAYLOAD부분 추출
         String payload = idToken.split("[.]")[1];
         User user = userService.getSubject(payload);

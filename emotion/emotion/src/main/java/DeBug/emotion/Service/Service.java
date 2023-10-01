@@ -31,7 +31,6 @@ public class Service {
         Base64.Decoder decoder = Base64.getUrlDecoder();
         String subject = new String(decoder.decode(token));
         JSONObject payload = new JSONObject(subject);
-
         //값 가져오기
         User user = new User();
         user.setName(payload.getString("name"));
@@ -57,6 +56,7 @@ public class Service {
             BC.setTitle(json.getString("title"));
             BC.setThumbnailsUrl(json.getJSONObject("thumbnails").getJSONObject("default").getString("url"));
             BC.setUser(user);
+            BC.setPublished(json.getString("publishedAt"));
             if(mongoDB_Repository.save_BroadCast(BC).equals("200")){
                 return BCID;
             }return "400";
