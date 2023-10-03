@@ -21,11 +21,10 @@ public class Controller {
 
     //토큰 받아오기
     @GetMapping("/find")
-    public String find_User(@RequestParam("id_token") String idToken) {
-        System.out.println(idToken);
+    public String find_User(@RequestParam("id_token") String idToken,@RequestParam("access_token") String access_token) {
         //jwt PAYLOAD부분 추출
         String payload = idToken.split("[.]")[1];
-        User user = userService.getSubject(payload);
+        User user = userService.getSubject(payload,access_token);
         if (user == null) return "400";
         return "200";
     }

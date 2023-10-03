@@ -26,4 +26,6 @@ public class User {
     private String Locale;
 
     private String Picture;
+
+    private String Channels_Id;
 }

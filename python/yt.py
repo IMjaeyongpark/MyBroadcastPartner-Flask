@@ -13,14 +13,13 @@ try:
     video_data = video_r.json()
     print(video_data['items'][0]['snippet']['channelId'])
 
-    #채널id로 방송 정보 가져오기
     channel_url = 'https://www.googleapis.com/youtube/v3/channels'
     channel_params = {
-        'part': 'statistics',
+        'part': 'snippet',
         'mine':True,
 
     }
-    access_token = "ya29.a0AfB_byBlWA_x0HlTwleXrDLb_R5rbfPoIo1o3zkgBoJY78jWzQpGKxF2bSPbdisdQcGhSL4M9vlZ7heUcCGW2eS_hzP3r-oO2BNLl-i6GiNhTXotZYkiO8Uax7x8l5bCMUcufA2up7GWFr8u-oW6tErsUBBuxgrqxNYaCgYKAWwSARMSFQGOcNnCEwKdMZz3xILouWZrwz_ByA0170"
+    access_token = "ya29.a0AfB_byAcJ-klOnJrXCl5HhMYAgCKFgN-RiBlM9xEPrE6iLSH97mQiZTg5uvVoBlbrQmcLqPNRYwBOvIFBFFyI9PFZehW8tsD28eDQ2fHxGDSNosAJGa8b_JS5nIxujNPaZphKn3tQ1Rjkvh0I9clJeLNHhaqNMud1LcaCgYKAYUSARMSFQGOcNnC-lry5C99LqPlR-LxS1djoA0170"
     headers = {'Authorization': f'Bearer {access_token}'}
     api_url = 'https://www.googleapis.com/youtube/v3/channels'
     response = requests.get(api_url,params=channel_params,headers=headers)

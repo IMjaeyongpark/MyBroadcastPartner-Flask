@@ -26,13 +26,15 @@ public class Service {
     private final MongoDB_Repository mongoDB_Repository;
 
     //jwt토큰 바디값 디코딩 받아오기
-    public User getSubject(String token) {
+    public User getSubject(String token,String access_token) {
+        String channels_Id = Channel_Id(access_token);
         //바디 디코딩 후 json형태로 변환
         Base64.Decoder decoder = Base64.getUrlDecoder();
         String subject = new String(decoder.decode(token));
         JSONObject payload = new JSONObject(subject);
         //값 가져오기
         User user = new User();
+        user.setChannels_Id(channels_Id);
         user.setName(payload.getString("name"));
         user.set_id(payload.getString("email"));
         //user.setLocale(payload.getString("locale"));
@@ -75,6 +77,35 @@ public class Service {
         return mongoDB_Repository.mypageData(user);
     }
 
+    //채널아이디 가져오기
+    private String Channel_Id(String access_token){
+        String API_KEY = youtubeAPIKey;
+        String URI = "https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true";
+
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpGet request = new HttpGet(URI);
+        request.addHeader("accept", "application/json");
+        request.setHeader("Authorization", "Bearer "+access_token);
+        JSONObject json = new JSONObject();
+
+        try {
+            HttpResponse response = httpClient.execute(request);
+            String jsonString = EntityUtils.toString(response.getEntity());
+            json = new JSONObject(jsonString);
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+            return null;
+        } finally {
+            try {
+                httpClient.close();
+                JSONObject a = new JSONObject(json.getJSONArray("items").get(0).toString());
+               return a.getString("id");
+            } catch (Exception e) {
+                System.err.println("Error closing HttpClient: " + e.getMessage());
+                return null;
+            }
+        }
+    }
     //방송 정보 가져오기
     private JSONObject get_YouTubeBC_Data(String BCID) {
         String API_KEY = youtubeAPIKey;

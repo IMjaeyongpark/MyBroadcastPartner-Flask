@@ -30,10 +30,7 @@ public class MongoDB_Repository {
 
         User u = mongoDBUserRepository.findOneBy_id(user.get_id());
         //없으면 저장
-        if (u == null) {
-            mongoDBUserRepository.insert(user);
-            return user;
-        }
+        mongoDBUserRepository.save(user);
         return u;
     }
 

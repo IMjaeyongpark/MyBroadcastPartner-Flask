@@ -11,18 +11,46 @@ from datetime import datetime
 
 
 app = Flask(__name__)
+app.config['JSON_AS_ASCII'] = False
 CORS(app)
 
 running = True
 print("실행레쓰고")
 
+youtube_api_key = "AIzaSyBTh6c2K5gdPgQi22TlPKOUu75IJaLn594"
+
+
+#유튜브 실시간 급상승 인기 순위
+@app.route('/')
+def po():
+    api_url = 'https://www.googleapis.com/youtube/v3/videos'
+    params = {
+        'key': youtube_api_key,
+        'part': 'snippet,statistics',
+        'chart': 'mostPopular',  # 인기 동영상을 검색하기 위한 매개변수
+        'regionCode': 'KR',  # 검색할 지역 또는 국가 코드 (예: 미국)
+        'maxResults': 10  # 가져올 결과의 최대 수 (10개로 설정)
+    }
+    response = requests.get(api_url, params=params).json()
+    popular_videos = response.get('items', [])
+    data = {'data':[]}
+    for video in popular_videos:
+        tmp = {}
+        tmp['url'] = 'https://www.youtube.com/watch?v=' + video['id']
+        tmp['title'] = video['snippet']['title']
+        tmp['thumbnails_Url'] = video['snippet']['thumbnails']['default']['url']
+        tmp['views'] = video['statistics']['viewCount']
+        data['data'].append(tmp)
+    res = json.dumps(data, ensure_ascii=False).encode('utf8')
+    return Response(res, content_type='application/json; charset=utf-8')
+
+#유튜브 실시간 댓글 분석
 @app.route('/<BCID>/<Email>')
 def sse(BCID, Email):
     def generate(BCID, Email):
 
         chat = pytchat.create(video_id=BCID)
 
-        youtube_api_key = "AIzaSyBTh6c2K5gdPgQi22TlPKOUu75IJaLn594"
         #방송 시작시간 가져오기
         video_url = 'https://www.googleapis.com/youtube/v3/videos'
         video_params = {
