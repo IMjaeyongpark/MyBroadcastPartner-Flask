@@ -12,15 +12,27 @@ import re
 from werkzeug.exceptions import ClientDisconnected
 from datetime import datetime
 from googleapiclient.discovery import build
+from flask_restful import Resource, Api
+from Po import Po
+from dotenv import load_dotenv
+import os
+
 
 app = Flask(__name__)
+api = Api(app)
 app.config['JSON_AS_ASCII'] = False
 CORS(app)
+
+#인기 급상승 10위
+api.add_resource(Po, '/po')
+
+
 
 running = True
 print("실행레쓰고")
 
-youtube_api_key = "AIzaSyBTh6c2K5gdPgQi22TlPKOUu75IJaLn594"
+load_dotenv()
+youtube_api_key = os.environ.get('youtube_api_key')
 
 
 # 실시간 구독자 수
@@ -49,30 +61,6 @@ def subcnt(channel_ID):
     return Response(getcnt(channel_ID), mimetype='text/event-stream')
 
 
-# 유튜브 실시간 급상승 인기 순위
-@app.route('/po')
-def po():
-    api_url = 'https://www.googleapis.com/youtube/v3/videos'
-    params = {
-        'key': youtube_api_key,
-        'part': 'snippet,statistics',
-        'chart': 'mostPopular',  # 인기 동영상을 검색하기 위한 매개변수
-        'regionCode': 'KR',  # 검색할 지역 또는 국가 코드
-        'maxResults': 10  # 가져올 결과의 최대 수 (10개로 설정)
-    }
-    response = requests.get(api_url, params=params).json()
-    popular_videos = response.get('items', [])
-    data = {'data': []}
-    for video in popular_videos:
-        tmp = {}
-        tmp['url'] = 'https://www.youtube.com/watch?v=' + video['id']
-        tmp['title'] = video['snippet']['title']
-        tmp['thumbnails_Url'] = video['snippet']['thumbnails']['default']['url']
-        tmp['views'] = video['statistics']['viewCount']
-        data['data'].append(tmp)
-    res = json.dumps(data, ensure_ascii=False).encode('utf8')
-    return Response(res, content_type='application/json; charset=utf-8')
-
 
 # 유튜브 실시간 댓글 분석
 @app.route('/live/<BCID>/<Email>')
@@ -95,8 +83,8 @@ def sse(BCID, Email):
         published = datetime.strptime(published, '%Y-%m-%dT%H:%M:%SZ')
         print(published)
 
-        client_id = "qefqu0dlxn"
-        client_secret = "fYXO7VBssTUEfeLjEY8h7KUfqsisk5XYrWjbO5Py"
+        client_id = os.environ.get('client_id')
+        client_secret = os.environ.get('client_secret')
         pafy.set_api_key(youtube_api_key)
         url = "https://naveropenapi.apigw.ntruss.com/sentiment-analysis/v1/analyze"
         headers = {
@@ -169,6 +157,7 @@ def sse(BCID, Email):
     return Response(generate(BCID, Email), mimetype='text/event-stream')
 
 
+#시청자 수
 @app.route('/concurrentViewers/<BCID>')
 def concurrentViewers(BCID):
     def viewers(BCID):
