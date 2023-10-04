@@ -3,10 +3,13 @@ import json
 from flask import Response
 from flask_restful import Resource
 import requests
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 class Po(Resource):
     def get(self):
-        youtube_api_key = "AIzaSyBTh6c2K5gdPgQi22TlPKOUu75IJaLn594"
+        youtube_api_key = os.environ.get('youtube_api_key')
         api_url = 'https://www.googleapis.com/youtube/v3/videos'
         params = {
             'key': youtube_api_key,

@@ -1,10 +1,14 @@
 import requests
 import json
 from datetime import datetime
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 #방송id로 방송 정보 가져오기
 BCID ="FJfwehhzIhw"
-key = "AIzaSyATIpI3znMnt3r9-9N3zr6ijtqV8ySiPwQ"
+key = os.environ.get('youtube_api_key')
 video_url = 'https://www.googleapis.com/youtube/v3/videos'
 video_params = {
     'part': 'snippet',
