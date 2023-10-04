@@ -1,3 +1,5 @@
+import time
+
 from flask import Flask, Response
 from flask_cors import CORS
 
@@ -8,6 +10,7 @@ import pafy
 import re
 from werkzeug.exceptions import ClientDisconnected
 from datetime import datetime
+from googleapiclient.discovery import build
 
 
 app = Flask(__name__)
@@ -19,9 +22,33 @@ print("실행레쓰고")
 
 youtube_api_key = "AIzaSyBTh6c2K5gdPgQi22TlPKOUu75IJaLn594"
 
+#실시간 구독자 수
+@app.route('/subcnt/<channel_ID>')
+def subcnt(channel_ID):
+    def getcnt(channel_ID):
+        cur = 0
+        youtube = build('youtube', 'v3', developerKey=youtube_api_key)
+        request = youtube.channels().list(
+            part='statistics',
+            id=channel_ID
+        )
+
+        while True:
+            response = request.execute()
+
+            if 'items' in response:
+                statistics = response['items'][0]['statistics']
+                subscriber_count = statistics['subscriberCount']
+                cur = subscriber_count
+                yield cur+"\n\n"
+            else:
+                yield cur+"\n\n"
+            time.sleep(1)
+
+    return Response(getcnt(channel_ID), mimetype='text/event-stream')
 
 #유튜브 실시간 급상승 인기 순위
-@app.route('/')
+@app.route('/po')
 def po():
     api_url = 'https://www.googleapis.com/youtube/v3/videos'
     params = {
@@ -45,7 +72,7 @@ def po():
     return Response(res, content_type='application/json; charset=utf-8')
 
 #유튜브 실시간 댓글 분석
-@app.route('/<BCID>/<Email>')
+@app.route('/live/<BCID>/<Email>')
 def sse(BCID, Email):
     def generate(BCID, Email):
 

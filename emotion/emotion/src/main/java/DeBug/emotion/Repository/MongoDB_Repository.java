@@ -188,6 +188,15 @@ public class MongoDB_Repository {
         return "200";
     }
 
+    public String channel_ID(String email) {
+        try {
+            return mongoDBUserRepository.findOneBy_id(email).getChannels_Id();
+        }catch (Exception e){
+            return null;
+        }
+
+    }
+
 
     //시청자 정보 저장
 //    private Author find_AuthorByname(String name){

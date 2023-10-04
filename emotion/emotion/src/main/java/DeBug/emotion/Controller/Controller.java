@@ -55,12 +55,21 @@ public class Controller {
         return "200";
     }
 
+    //마이페이지 데이터
     @GetMapping("/mypage")
     public Total_Data mypage(@RequestParam("email")String email) {
         User user = new User();
         user.set_id(email);
         return userService.mypageData(user);
     }
+
+    //채널 아이디
+    @GetMapping("/channel_ID")
+    public String channel_ID(@RequestParam("email")String email) {
+        return userService.channel_ID(email);
+    }
+
+
 
     @GetMapping("/testdata")
     public String testdata(){

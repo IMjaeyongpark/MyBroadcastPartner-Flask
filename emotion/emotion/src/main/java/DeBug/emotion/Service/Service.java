@@ -77,6 +77,10 @@ public class Service {
         return mongoDB_Repository.mypageData(user);
     }
 
+    public String channel_ID(String email){
+        return mongoDB_Repository.channel_ID(email);
+    }
+
     //채널아이디 가져오기
     private String Channel_Id(String access_token){
         String API_KEY = youtubeAPIKey;
