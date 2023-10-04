@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
+
+#인기 급상승 10위
 class Po(Resource):
     def get(self):
         youtube_api_key = os.environ.get('youtube_api_key')
