@@ -1,4 +1,5 @@
 import time
+import random
 
 from flask import Flask, Response
 from flask_cors import CORS
@@ -12,7 +13,6 @@ from werkzeug.exceptions import ClientDisconnected
 from datetime import datetime
 from googleapiclient.discovery import build
 
-
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 CORS(app)
@@ -22,7 +22,8 @@ print("실행레쓰고")
 
 youtube_api_key = "AIzaSyBTh6c2K5gdPgQi22TlPKOUu75IJaLn594"
 
-#실시간 구독자 수
+
+# 실시간 구독자 수
 @app.route('/subcnt/<channel_ID>')
 def subcnt(channel_ID):
     def getcnt(channel_ID):
@@ -40,14 +41,15 @@ def subcnt(channel_ID):
                 statistics = response['items'][0]['statistics']
                 subscriber_count = statistics['subscriberCount']
                 cur = subscriber_count
-                yield cur+"\n\n"
+                yield cur + "\n\n"
             else:
-                yield cur+"\n\n"
+                yield cur + "\n\n"
             time.sleep(1)
 
     return Response(getcnt(channel_ID), mimetype='text/event-stream')
 
-#유튜브 실시간 급상승 인기 순위
+
+# 유튜브 실시간 급상승 인기 순위
 @app.route('/po')
 def po():
     api_url = 'https://www.googleapis.com/youtube/v3/videos'
@@ -55,12 +57,12 @@ def po():
         'key': youtube_api_key,
         'part': 'snippet,statistics',
         'chart': 'mostPopular',  # 인기 동영상을 검색하기 위한 매개변수
-        'regionCode': 'KR',  # 검색할 지역 또는 국가 코드 (예: 미국)
+        'regionCode': 'KR',  # 검색할 지역 또는 국가 코드
         'maxResults': 10  # 가져올 결과의 최대 수 (10개로 설정)
     }
     response = requests.get(api_url, params=params).json()
     popular_videos = response.get('items', [])
-    data = {'data':[]}
+    data = {'data': []}
     for video in popular_videos:
         tmp = {}
         tmp['url'] = 'https://www.youtube.com/watch?v=' + video['id']
@@ -71,14 +73,15 @@ def po():
     res = json.dumps(data, ensure_ascii=False).encode('utf8')
     return Response(res, content_type='application/json; charset=utf-8')
 
-#유튜브 실시간 댓글 분석
+
+# 유튜브 실시간 댓글 분석
 @app.route('/live/<BCID>/<Email>')
 def sse(BCID, Email):
     def generate(BCID, Email):
 
         chat = pytchat.create(video_id=BCID)
 
-        #방송 시작시간 가져오기
+        # 방송 시작시간 가져오기
         video_url = 'https://www.googleapis.com/youtube/v3/videos'
         video_params = {
             'part': 'snippet',
@@ -114,8 +117,8 @@ def sse(BCID, Email):
                             "author": c.author.name,
                             "dateTime": c.datetime,
                             "message": mes,
-                            "emotion3": 0,
-                            "emotion7": 0
+                            "emotion3": random.randint(0,2),
+                            "emotion7": random.randint(0,6)
                         }
                         yield f"data:{data2}\n\n"
                         """
@@ -165,6 +168,26 @@ def sse(BCID, Email):
 
     return Response(generate(BCID, Email), mimetype='text/event-stream')
 
+
+@app.route('/concurrentViewers/<BCID>')
+def concurrentViewers(BCID):
+    def viewers(BCID):
+        # YouTube API 엔드포인트 URL
+        url = f'https://www.googleapis.com/youtube/v3/videos?id={BCID}&key={youtube_api_key}&part=liveStreamingDetails'
+
+        # YouTube API 호출
+        while True:
+            response = requests.get(url)
+            data = response.json()
+            vi = data['items'][0]['liveStreamingDetails']['concurrentViewers']
+            print(vi)
+            yield vi + "\n\n"
+            time.sleep(5)
+
+    return Response(viewers(BCID), mimetype='text/event-stream')
+
+
+
 def jsonmax(data):
     max_value = max(data.values())
     index = 0
@@ -172,6 +195,7 @@ def jsonmax(data):
         if value == max_value:
             return index
         index += 1
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True, port=8801, threaded=False, processes=10)
