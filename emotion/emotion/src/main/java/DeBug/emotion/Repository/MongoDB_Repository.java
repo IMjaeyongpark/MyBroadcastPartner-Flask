@@ -197,6 +197,21 @@ public class MongoDB_Repository {
 
     }
 
+    public String saveClass(String email){
+        try {
+            User user = mongoDBUserRepository.findOneBy_id(email);
+
+            //받아온 정보 저장
+
+            mongoDBUserRepository.save(user);
+            return "200";
+        }catch (Exception e){
+            return "400";
+        }
+
+
+    }
+
 
     //시청자 정보 저장
 //    private Author find_AuthorByname(String name){

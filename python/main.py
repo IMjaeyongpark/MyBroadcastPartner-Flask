@@ -17,16 +17,13 @@ from Po import Po
 from dotenv import load_dotenv
 import os
 
-
 app = Flask(__name__)
 api = Api(app)
 app.config['JSON_AS_ASCII'] = False
 CORS(app)
 
-#인기 급상승 10위
+# 인기 급상승 10위
 api.add_resource(Po, '/po')
-
-
 
 running = True
 print("실행레쓰고")
@@ -38,27 +35,20 @@ youtube_api_key = os.environ.get('youtube_api_key')
 # 실시간 구독자 수
 @app.route('/subcnt/<channel_ID>')
 def subcnt(channel_ID):
-    def getcnt(channel_ID):
-        cur = 0
         youtube = build('youtube', 'v3', developerKey=youtube_api_key)
         request = youtube.channels().list(
             part='statistics',
             id=channel_ID
         )
+        response = request.execute()
 
-        while True:
-            response = request.execute()
+        if 'items' in response:
+            statistics = response['items'][0]['statistics']
+            subscriber_count = statistics['subscriberCount']
+            return subscriber_count
+        else:
+            return "400"
 
-            if 'items' in response:
-                statistics = response['items'][0]['statistics']
-                subscriber_count = statistics['subscriberCount']
-                cur = subscriber_count
-                yield cur + "\n\n"
-            else:
-                yield cur + "\n\n"
-            time.sleep(1)
-
-    return Response(getcnt(channel_ID), mimetype='text/event-stream')
 
 
 
@@ -105,8 +95,8 @@ def sse(BCID, Email):
                             "author": c.author.name,
                             "dateTime": c.datetime,
                             "message": mes,
-                            "emotion3": random.randint(0,2),
-                            "emotion7": random.randint(0,6)
+                            "emotion3": random.randint(0, 2),
+                            "emotion7": random.randint(0, 6)
                         }
                         yield f"data:{data2}\n\n"
                         """
@@ -157,24 +147,17 @@ def sse(BCID, Email):
     return Response(generate(BCID, Email), mimetype='text/event-stream')
 
 
-#시청자 수
+# 시청자 수
 @app.route('/concurrentViewers/<BCID>')
 def concurrentViewers(BCID):
-    def viewers(BCID):
-        # YouTube API 엔드포인트 URL
-        url = f'https://www.googleapis.com/youtube/v3/videos?id={BCID}&key={youtube_api_key}&part=liveStreamingDetails'
+    # YouTube API 엔드포인트 URL
+    url = f'https://www.googleapis.com/youtube/v3/videos?id={BCID}&key={youtube_api_key}&part=liveStreamingDetails'
 
-        # YouTube API 호출
-        while True:
-            response = requests.get(url)
-            data = response.json()
-            vi = data['items'][0]['liveStreamingDetails']['concurrentViewers']
-            print(vi)
-            yield vi + "\n\n"
-            time.sleep(5)
-
-    return Response(viewers(BCID), mimetype='text/event-stream')
-
+    # YouTube API 호출
+    response = requests.get(url)
+    data = response.json()
+    vi = data['items'][0]['liveStreamingDetails']['concurrentViewers']
+    return vi
 
 
 def jsonmax(data):

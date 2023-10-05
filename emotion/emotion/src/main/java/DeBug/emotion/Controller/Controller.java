@@ -69,7 +69,10 @@ public class Controller {
         return userService.channel_ID(email);
     }
 
-
+    @GetMapping("/saveClass")
+    public String saveClass(@RequestParam("email")String email) {
+        return userService.saveClass(email);
+    }
 
     @GetMapping("/testdata")
     public String testdata(){

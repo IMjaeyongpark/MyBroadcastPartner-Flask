@@ -139,6 +139,10 @@ public class Service {
         }
     }
 
+    public String saveClass(String email){
+        return mongoDB_Repository.saveClass(email);
+    }
+
     public String testdata(){
         mongoDB_Repository.testdata();
         return "200";
