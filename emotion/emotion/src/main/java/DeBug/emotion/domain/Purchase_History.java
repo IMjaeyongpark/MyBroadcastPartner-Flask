@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Document(collection = "Purchase_History")
+@AllArgsConstructor
 public class Purchase_History {
     @Id
     //apply_num
@@ -22,7 +23,7 @@ public class Purchase_History {
     private String name;
     private String amount;
     private String merchant_uid;
-    private LocalDateTime start_date = LocalDateTime.now();
+    private LocalDateTime start_date;
     private LocalDateTime end_date;
 
     @DBRef

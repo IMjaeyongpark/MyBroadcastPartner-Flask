@@ -8,6 +8,7 @@ import DeBug.emotion.domain.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -77,14 +78,11 @@ public class Controller {
                             @RequestParam("amount") String amount,
                             @RequestParam("merchant_uid") String merchant_uid,
                             @RequestParam("apply_num") String apply_num) {
-        Purchase_History PH = new Purchase_History();
-        PH.set_id(apply_num);
-        PH.setName(name);
-        PH.setAmount(amount);
-        PH.setMerchant_uid(merchant_uid);
         User user = new User();
         user.set_id(email);
-        PH.setUser(user);
+        Purchase_History PH = new Purchase_History(apply_num,name,amount,merchant_uid,
+                LocalDateTime.now(),LocalDateTime.now().plusMonths(1),user);
+
         return userService.saveClass(PH);
     }
 

@@ -220,7 +220,9 @@ public class MongoDB_Repository {
     public List<Purchase_History> getPurchaseHistory(String email){
         User user = new User();
         user.set_id(email);
-        return mongoPurchaseHistoryRepository.findByUser(user);
+        List<Purchase_History> list = mongoPurchaseHistoryRepository.findByUser(user);
+        Collections.reverse(list);
+        return list;
     }
 
 
