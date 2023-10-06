@@ -1,10 +1,7 @@
 package DeBug.emotion.Service;
 
 import DeBug.emotion.Repository.MongoDB_Repository;
-import DeBug.emotion.domain.BroadCast;
-import DeBug.emotion.domain.Chat;
-import DeBug.emotion.domain.Total_Data;
-import DeBug.emotion.domain.User;
+import DeBug.emotion.domain.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -14,6 +11,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Base64;
+import java.util.List;
 
 public class Service {
     @Value("${java.file.youtubeAPIKey}") // 변수 파일에 등록된 java.file.test 값 가져오기
@@ -83,7 +81,6 @@ public class Service {
 
     //채널아이디 가져오기
     private String Channel_Id(String access_token){
-        String API_KEY = youtubeAPIKey;
         String URI = "https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true";
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -139,8 +136,11 @@ public class Service {
         }
     }
 
-    public String saveClass(String email){
-        return mongoDB_Repository.saveClass(email);
+    public String saveClass(Purchase_History PH){
+        return mongoDB_Repository.saveClass(PH);
+    }
+    public List<Purchase_History> getPurchaseHistory(String email){
+        return mongoDB_Repository.getPurchaseHistory(email);
     }
 
     public String testdata(){

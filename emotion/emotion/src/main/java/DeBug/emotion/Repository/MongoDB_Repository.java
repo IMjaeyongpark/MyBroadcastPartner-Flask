@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,13 +24,21 @@ public class MongoDB_Repository {
 
     @Autowired
     private Year_Repositoy mongoDBYearRepositoy;
+    @Autowired
+    private Purchase_History_Repository mongoPurchaseHistoryRepository;
 
 
     //회원정보가 없으면 db저장
     public User insert_User(User user) {
 
         User u = mongoDBUserRepository.findOneBy_id(user.get_id());
-        //없으면 저장
+        if (u.getDate() != null && u.getDate().isBefore(LocalDateTime.now())) {
+            user.setClass_name("basic");
+            user.setDate(null);
+        }else{
+            user.setClass_name(u.getClass_name());
+            user.setDate(u.getDate());
+        }
         mongoDBUserRepository.save(user);
         return u;
     }
@@ -131,7 +140,7 @@ public class MongoDB_Repository {
         Total_Data td = new Total_Data();
         List<BroadCast> bc = mongoDBBroadCastRepository.findByUser(user);
         List<YearTotalData> year = mongoDBYearRepositoy.findByUser(user);
-        Collections.sort(year, (o1,o2) ->  Integer.parseInt(o1.get_id().substring(0,4))- Integer.parseInt(o2.get_id().substring(0,4)));
+        Collections.sort(year, (o1, o2) -> Integer.parseInt(o1.get_id().substring(0, 4)) - Integer.parseInt(o2.get_id().substring(0, 4)));
         td.setBroadCasts(bc);
         td.setYears(year);
         return td;
@@ -151,8 +160,8 @@ public class MongoDB_Repository {
         }
     }
 
-    public String testdata(){
-        int[] a = {31,28,31,30,31,30,31,31,30,31,30,31};
+    public String testdata() {
+        int[] a = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
         YearTotalData y = new YearTotalData();
         y.set_id("2022dbsruaqls123@gmail.com");
@@ -161,20 +170,21 @@ public class MongoDB_Repository {
         y.setUser(user);
 
 
-        for(int i = 3;i<12;i++){
+        for (int i = 3; i < 12; i++) {
             y.getMonthTotalData()[i] = new MonthTotalData();
-            for(int j =0;j<a[i];j++){
+            for (int j = 0; j < a[i]; j++) {
                 y.getMonthTotalData()[i].day_total_data[j] = new DayTotalData();
-                for(int q=0;q<24;q++) {
+                for (int q = 0; q < 24; q++) {
                     y.getMonthTotalData()[i].day_total_data[j].One_Hour_Emotion[q] = new HourData();
                     for (int k = 0; k < 3; k++) {
-                        int data = (int)(Math.random()*30);
+                        int data = (int) (Math.random() * 30);
                         y.getMonthTotalData()[i].day_total_data[j].One_Hour_Emotion[q].All_Emotion3[k] = data;
                         y.getMonthTotalData()[i].day_total_data[j].All_Emotion3[k] += data;
                         y.getMonthTotalData()[i].All_Emotion3[k] += data;
-                        y.All_Emotion3[k] += data;                    }
+                        y.All_Emotion3[k] += data;
+                    }
                     for (int k = 0; k < 7; k++) {
-                        int data = (int)(Math.random()*30);
+                        int data = (int) (Math.random() * 30);
                         y.getMonthTotalData()[i].day_total_data[j].One_Hour_Emotion[q].All_Emotion7[k] = data;
                         y.getMonthTotalData()[i].day_total_data[j].All_Emotion7[k] += data;
                         y.getMonthTotalData()[i].All_Emotion7[k] += data;
@@ -191,25 +201,34 @@ public class MongoDB_Repository {
     public String channel_ID(String email) {
         try {
             return mongoDBUserRepository.findOneBy_id(email).getChannels_Id();
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
 
     }
 
-    public String saveClass(String email){
+    public String saveClass(Purchase_History PH) {
         try {
-            User user = mongoDBUserRepository.findOneBy_id(email);
+            User user = mongoDBUserRepository.findOneBy_id(PH.getUser().get_id());
 
             //받아온 정보 저장
+            PH.setEnd_date(PH.getStart_date().plusMonths(1));
+            user.setDate(PH.getStart_date().plusMonths(1));
+            user.setClass_name(PH.getName());
 
+            mongoPurchaseHistoryRepository.insert(PH);
             mongoDBUserRepository.save(user);
+
             return "200";
-        }catch (Exception e){
+        } catch (Exception e) {
             return "400";
         }
+    }
 
-
+    public List<Purchase_History> getPurchaseHistory(String email){
+        User user = new User();
+        user.set_id(email);
+        return mongoPurchaseHistoryRepository.findByUser(user);
     }
 
 
