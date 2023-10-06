@@ -66,12 +66,7 @@ public class Controller {
         return userService.mypageData(user);
     }
 
-    //채널 아이디
-    @GetMapping("/channel_ID")
-    public String channel_ID(@RequestParam("email") String email) {
-        return userService.channel_ID(email);
-    }
-
+    //결제 정보 저장
     @GetMapping("/saveClass")
 //    상품이름:name
 //    결제금액:amount
@@ -93,6 +88,7 @@ public class Controller {
         return userService.saveClass(PH);
     }
 
+    //구매내역 가져오기
     @GetMapping("/getPurchaseHistory")
     public List<Purchase_History> getPurchaseHistory(@RequestParam("email")String email){
         return userService.getPurchaseHistory(email);

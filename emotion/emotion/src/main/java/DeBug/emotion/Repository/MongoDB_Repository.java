@@ -198,14 +198,6 @@ public class MongoDB_Repository {
         return "200";
     }
 
-    public String channel_ID(String email) {
-        try {
-            return mongoDBUserRepository.findOneBy_id(email).getChannels_Id();
-        } catch (Exception e) {
-            return null;
-        }
-
-    }
 
     public String saveClass(Purchase_History PH) {
         try {
