@@ -22,10 +22,6 @@ public class User {
 
     private String Name;
 
-    private String Channel_Name;
-
-    private String Locale;
-
     private String Picture;
 
     private String Channels_Id;
