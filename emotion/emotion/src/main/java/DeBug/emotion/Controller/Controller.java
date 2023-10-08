@@ -28,7 +28,7 @@ public class Controller {
     public User find_User(@RequestParam("id_token") String idToken, @RequestParam("access_token") String access_token) {
         //jwt PAYLOAD부분 추출
         String payload = idToken.split("[.]")[1];
-        return userService.getSubject(payload, access_token);;
+        return userService.getSubject(payload, access_token);
     }
 
     //본인확인

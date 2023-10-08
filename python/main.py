@@ -35,21 +35,19 @@ youtube_api_key = os.environ.get('youtube_api_key')
 # 실시간 구독자 수
 @app.route('/subcnt/<channel_ID>')
 def subcnt(channel_ID):
-        youtube = build('youtube', 'v3', developerKey=youtube_api_key)
-        request = youtube.channels().list(
-            part='statistics',
-            id=channel_ID
-        )
-        response = request.execute()
+    youtube = build('youtube', 'v3', developerKey=youtube_api_key)
+    request = youtube.channels().list(
+        part='statistics',
+        id=channel_ID
+    )
+    response = request.execute()
 
-        if 'items' in response:
-            statistics = response['items'][0]['statistics']
-            subscriber_count = statistics['subscriberCount']
-            return subscriber_count
-        else:
-            return "400"
-
-
+    if 'items' in response:
+        statistics = response['items'][0]['statistics']
+        subscriber_count = statistics['subscriberCount']
+        return subscriber_count
+    else:
+        return "400"
 
 
 # 유튜브 실시간 댓글 분석
@@ -73,15 +71,6 @@ def sse(BCID, Email):
         published = datetime.strptime(published, '%Y-%m-%dT%H:%M:%SZ')
         print(published)
 
-        client_id = os.environ.get('client_id')
-        client_secret = os.environ.get('client_secret')
-        pafy.set_api_key(youtube_api_key)
-        url = "https://naveropenapi.apigw.ntruss.com/sentiment-analysis/v1/analyze"
-        headers = {
-            "X-NCP-APIGW-API-KEY-ID": client_id,
-            "X-NCP-APIGW-API-KEY": client_secret,
-            "Content-Type": "application/json"
-        }
         preName = ""
         preDate = ""
         while chat.is_alive():
@@ -91,55 +80,33 @@ def sse(BCID, Email):
                 for c in items:
                     if not (preDate == c.datetime and preName == c.author.name):
                         mes = re.sub(r':[^:]+:', '', c.message)
+                        IP = os.environ.get('server_IP')
+                        emotion = requests.get(
+                            IP + c.message
+                        ).json()
+                        emotion['emotion7'] = int(emotion['emotion7'])
+                        emotion['emotion3'] = float(emotion['emotion3'])
+                        if emotion['emotion7'] == 4 or (emotion['emotion3'] > 0.45 and emotion['emotion3'] < 0.55):
+                            emotion['emotion3'] = 2
+                        elif emotion['emotion3'] > 0.5:
+                            emotion['emotion3'] = 1
+                        else:
+                            emotion['emotion3'] = 0
+
                         data2 = {
                             "author": c.author.name,
                             "dateTime": c.datetime,
                             "message": mes,
-                            "emotion3": random.randint(0, 2),
-                            "emotion7": random.randint(0, 6)
+                            "emotion3": emotion['emotion3'],
+                            "emotion7": emotion['emotion7']
                         }
                         yield f"data:{data2}\n\n"
-                        """
-                        message = re.sub(r"[^\uAC00-\uD7A3a-zA-Z\s]", "", c.message)
-                        data = {"content": c.message}
-                        response = requests.post(url, data=json.dumps(data), headers=headers)
-                        text = response.json()
                         header = {"Content-type": "application/json", "Accept": "text/plain"}
-                        mes = re.sub(r':[^:]+:', '', c.message)
-                        if 'sentences' in text:
-                            
-                            
-                            sen = text['sentences'][0]
-                            emotion7 = requests.get(
-                                "http://10.20.102.62:2942/ai/"+c.message
-                                ).json()
-
-                            data2 = {
-                                "author": c.author.name,
-                                "dateTime": c.datetime,
-                                "message": mes,
-                                "emotion3": jsonmax(sen['confidence']),
-                                "emotion7": emotion7
-                            }
-                            yield f"data:{data2}\n\n"
-                            requests.get(
-                                "http://localhost:8080/chat?email=" + Email + "&BCID=" + BCID + "&name=" + c.author.name,
-                                data=json.dumps(data2), headers=header)
-                        else:
-                            data2 = {
-                                "author": c.author.name,
-                                "dateTime": c.datetime,
-                                "message": c.message,
-                                "emotion3": 2,
-                                "emotion7": emotion7
-                            }
-
-                            yield f"data:{data2}\n\n"
-                            URI = "http://localhost:8080/chat?email=" + Email + "&BCID=" + BCID + "&name=" + c.author.name
-                            response = requests.get(URI, data=json.dumps(data2), headers=header)"""
-
+                        URI = "http://localhost:8080/chat?email=" + Email + "&BCID=" + BCID + "&name=" + c.author.name
+                        requests.get(URI, data=json.dumps(data2), headers=header)
                         preName = c.author.name
                         preDate = c.datetime
+
             except ClientDisconnected:
                 print("클라이언트 연결 종료")
                 break
