@@ -139,6 +139,9 @@ public class Service {
     public List<Purchase_History> getPurchaseHistory(String email){
         return mongoDB_Repository.getPurchaseHistory(email);
     }
+    public String saveViewer(String BCID,String sec,String viewer){
+        return mongoDB_Repository.saveViewer(BCID, sec, viewer);
+    }
 
     public String testdata(){
         mongoDB_Repository.testdata();

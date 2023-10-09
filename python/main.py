@@ -117,14 +117,26 @@ def sse(BCID, Email):
 # 시청자 수
 @app.route('/concurrentViewers/<BCID>')
 def concurrentViewers(BCID):
-    # YouTube API 엔드포인트 URL
-    url = f'https://www.googleapis.com/youtube/v3/videos?id={BCID}&key={youtube_api_key}&part=liveStreamingDetails'
+    def viewer(BCID):
+        header = {"Content-type": "application/json", "Accept": "text/plain"}
+        URI = "https://www.googleapis.com/youtube/v3/videos?id=" + BCID +\
+              "&key=" + youtube_api_key + "&part=snippet,contentDetails,statistics,status"
+        res = requests.get(URI).json()
+        published = datetime.strptime(res['items'][0]['snippet']['publishedAt'], '%Y-%m-%dT%H:%M:%SZ')
+        url = f'https://www.googleapis.com/youtube/v3/videos?id={BCID}&key={youtube_api_key}&part=liveStreamingDetails'
 
-    # YouTube API 호출
-    response = requests.get(url)
-    data = response.json()
-    vi = data['items'][0]['liveStreamingDetails']['concurrentViewers']
-    return vi
+        while 1:
+            # YouTube API 호출
+            response = requests.get(url)
+            data = response.json()
+            vi = data['items'][0]['liveStreamingDetails']['concurrentViewers']
+            yield f"data:{vi}\n\n"
+            t = datetime.now()-published
+            spurl = f'http://localhost:8080/saveViewer?BCID={BCID}&sec={t.seconds}&viewer={vi}'
+            print(requests.get(spurl,headers=header))
+            time.sleep(5)
+
+    return Response(viewer(BCID), mimetype='text/event-stream')
 
 
 def jsonmax(data):

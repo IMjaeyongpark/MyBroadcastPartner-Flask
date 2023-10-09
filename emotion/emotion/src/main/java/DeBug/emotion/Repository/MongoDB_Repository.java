@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -223,6 +222,19 @@ public class MongoDB_Repository {
         List<Purchase_History> list = mongoPurchaseHistoryRepository.findByUser(user);
         Collections.reverse(list);
         return list;
+    }
+
+    public String saveViewer(String BCID,String sec,String viewer){
+        try {
+            BroadCast BC = mongoDBBroadCastRepository.findOneBy_id(BCID);
+            BC.Viewer.put(sec,viewer);
+            System.out.println(BC.Viewer.toString());
+            mongoDBBroadCastRepository.save(BC);
+            return "200";
+        }catch (Exception e){
+            System.out.println("error");
+            return "400";
+        }
     }
 
 

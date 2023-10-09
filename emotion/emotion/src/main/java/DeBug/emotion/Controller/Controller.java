@@ -6,6 +6,7 @@ import DeBug.emotion.domain.Purchase_History;
 import DeBug.emotion.domain.Total_Data;
 import DeBug.emotion.domain.User;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -88,6 +89,11 @@ public class Controller {
     @GetMapping("/getPurchaseHistory")
     public List<Purchase_History> getPurchaseHistory(@RequestParam("email")String email){
         return userService.getPurchaseHistory(email);
+    }
+
+    @GetMapping("/saveViewer")
+    public String saveViewer(@RequestParam("BCID")String BCID,@RequestParam("sec")String sec,@RequestParam("viewer")String viewer){
+        return userService.saveViewer(BCID,sec,viewer);
     }
 
 
