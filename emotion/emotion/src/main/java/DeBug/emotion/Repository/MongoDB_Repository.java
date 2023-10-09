@@ -227,7 +227,7 @@ public class MongoDB_Repository {
     public String saveViewer(String BCID,String sec,String viewer){
         try {
             BroadCast BC = mongoDBBroadCastRepository.findOneBy_id(BCID);
-            BC.Viewer.put(sec,viewer);
+            BC.Viewer.put(sec,Integer.parseInt(viewer));
             System.out.println(BC.Viewer.toString());
             mongoDBBroadCastRepository.save(BC);
             return "200";
