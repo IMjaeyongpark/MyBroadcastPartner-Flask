@@ -75,6 +75,10 @@ public class Service {
         return mongoDB_Repository.mypageData(user);
     }
 
+    public FeedbackData getChat(String BCID){
+        return mongoDB_Repository.getChat(BCID);
+    }
+
 
     //채널아이디 가져오기
     private String Channel_Id(String access_token){

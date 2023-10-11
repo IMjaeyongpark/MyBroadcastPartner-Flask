@@ -1,8 +1,9 @@
 import time
 import random
-
+import sys
 from flask import Flask, Response
 from flask_cors import CORS
+from datetime import timedelta
 
 import requests as requests
 import json
@@ -119,7 +120,7 @@ def sse(BCID, Email):
 def concurrentViewers(BCID):
     def viewer(BCID):
         header = {"Content-type": "application/json", "Accept": "text/plain"}
-        URI = "https://www.googleapis.com/youtube/v3/videos?id=" + BCID +\
+        URI = "https://www.googleapis.com/youtube/v3/videos?id=" + BCID + \
               "&key=" + youtube_api_key + "&part=snippet,contentDetails,statistics,status"
         res = requests.get(URI).json()
         published = datetime.strptime(res['items'][0]['snippet']['publishedAt'], '%Y-%m-%dT%H:%M:%SZ')
@@ -131,12 +132,49 @@ def concurrentViewers(BCID):
             data = response.json()
             vi = data['items'][0]['liveStreamingDetails']['concurrentViewers']
             yield f"data:{vi}\n\n"
-            t = datetime.now()-published
+            t = datetime.now() - published
             spurl = f'http://localhost:8080/saveViewer?BCID={BCID}&sec={t.seconds}&viewer={vi}'
-            print(requests.get(spurl,headers=header))
-            time.sleep(5)
+            requests.get(spurl, headers=header)
+            time.sleep(15)
 
     return Response(viewer(BCID), mimetype='text/event-stream')
+
+
+@app.route("/feedback/<BCID>")
+def feedback(BCID):
+    URI = f'http://localhost:8080/getChat?BCID={BCID}'
+    data = requests.get(URI).json()
+    published = datetime.strptime(data['published'], '%Y-%m-%dT%H:%M:%SZ')
+    time_data = {}
+    print(data)
+    for key, value in data['viewer'].items():
+        time_data[key] = [0, 0]
+
+    for item in data['cd']:
+        t = datetime.strptime(item['time'], '%Y-%m-%d %H:%M:%S')
+        sec = (t - published).seconds
+        for key, value in data['viewer'].items():
+            print(value)
+            if sec > int(key):
+                time_data[key][item['emotion3']] += 1
+                break
+    min_Viewr = int(jsonmax(data['viewer']) * 0.7)
+    max_emo = -1
+    max_idx = 0
+    min_emo = 9999999999999
+    min_idx = 0
+    for key, value in time_data.items():
+        print(value)
+        if int(key) > min_Viewr:
+            if value[1] > max_emo:
+                max_emo = value[1]
+                max_idx = key
+        if int(key) > min_Viewr:
+            if value[0] < min_emo:
+                min_emo = value[0]
+                min_idx = key
+
+    return f'{str((max_idx))}\n{str(min_idx)}'
 
 
 def jsonmax(data):

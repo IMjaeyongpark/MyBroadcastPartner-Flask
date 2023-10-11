@@ -1,12 +1,8 @@
 package DeBug.emotion.Controller;
 
 import DeBug.emotion.Service.Service;
-import DeBug.emotion.domain.Chat;
-import DeBug.emotion.domain.Purchase_History;
-import DeBug.emotion.domain.Total_Data;
-import DeBug.emotion.domain.User;
+import DeBug.emotion.domain.*;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -26,7 +22,8 @@ public class Controller {
 
     //토큰 받아오기
     @GetMapping("/find")
-    public User find_User(@RequestParam("id_token") String idToken, @RequestParam("access_token") String access_token) {
+    public User find_User(@RequestParam("id_token") String idToken,
+                          @RequestParam("access_token") String access_token) {
         //jwt PAYLOAD부분 추출
         String payload = idToken.split("[.]")[1];
         return userService.getSubject(payload, access_token);
@@ -50,7 +47,8 @@ public class Controller {
     //채팅 저장 및 전달
     @RequestMapping("/chat")
     public String chat(@RequestParam("email") String email,
-                       @RequestBody Chat chat, @RequestParam("BCID") String BCID,
+                       @RequestBody Chat chat,
+                       @RequestParam("BCID") String BCID,
                        @RequestParam("name") String name) {
         User user = new User();
         user.set_id(email);
@@ -92,10 +90,16 @@ public class Controller {
     }
 
     @GetMapping("/saveViewer")
-    public String saveViewer(@RequestParam("BCID")String BCID,@RequestParam("sec")String sec,@RequestParam("viewer")String viewer){
+    public String saveViewer(@RequestParam("BCID")String BCID,
+                             @RequestParam("sec")String sec,
+                             @RequestParam("viewer")String viewer){
         return userService.saveViewer(BCID,sec,viewer);
     }
 
+    @GetMapping("/getChat")
+    public FeedbackData getChat(@RequestParam("BCID")String BCID){
+        return userService.getChat(BCID);
+    }
 
     @GetMapping("/testdata")
     public String testdata() {

@@ -34,7 +34,7 @@ public class MongoDB_Repository {
         if (u.getDate() != null && u.getDate().isBefore(LocalDateTime.now())) {
             user.setClass_name("basic");
             user.setDate(null);
-        }else{
+        } else {
             user.setClass_name(u.getClass_name());
             user.setDate(u.getDate());
         }
@@ -46,6 +46,10 @@ public class MongoDB_Repository {
     public String save_BroadCast(BroadCast BC) {
         //방송정보 저장
         try {
+            BroadCast TMP = mongoDBBroadCastRepository.findOneBy_id(BC.get_id());
+            if(TMP != null){
+                return "200";
+            }
             mongoDBBroadCastRepository.save(BC);
             return "200";
         } catch (Exception e) {
@@ -216,7 +220,7 @@ public class MongoDB_Repository {
         }
     }
 
-    public List<Purchase_History> getPurchaseHistory(String email){
+    public List<Purchase_History> getPurchaseHistory(String email) {
         User user = new User();
         user.set_id(email);
         List<Purchase_History> list = mongoPurchaseHistoryRepository.findByUser(user);
@@ -224,17 +228,37 @@ public class MongoDB_Repository {
         return list;
     }
 
-    public String saveViewer(String BCID,String sec,String viewer){
+    public String saveViewer(String BCID, String sec, String viewer) {
         try {
             BroadCast BC = mongoDBBroadCastRepository.findOneBy_id(BCID);
-            BC.Viewer.put(sec,Integer.parseInt(viewer));
-            System.out.println(BC.Viewer.toString());
+            BC.Viewer.put(sec, Integer.parseInt(viewer));
+
             mongoDBBroadCastRepository.save(BC);
             return "200";
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println("error");
             return "400";
         }
+    }
+
+    public FeedbackData getChat(String BCID) {
+
+        BroadCast BC = mongoDBBroadCastRepository.findOneBy_id(BCID);
+        FeedbackData FD = new FeedbackData();
+        FD.setPublished(BC.getPublished());
+        FD.setViewer(BC.getViewer());
+        System.out.println(FD.getViewer().toString());
+        List<Author> Authors = mongoDBAuthorRepository.findByBroadCast(BC);
+
+        for (Author Author : Authors) {
+            for (Chat chat : Author.getChat()) {
+                if (chat.getEmotion3() == 1 || chat.getEmotion3() == 0) {
+                    Chat_Data CD = new Chat_Data(chat.getDateTime(),chat.getEmotion3());
+                    FD.cd.add(CD);
+                }
+            }
+        }
+        return FD;
     }
 
 
