@@ -70,8 +70,6 @@ def sse(BCID, Email):
         published = video_data["items"][0]["snippet"]["publishedAt"]
         # datetime.timedelta타입으로 변환
         published = datetime.strptime(published, '%Y-%m-%dT%H:%M:%SZ')
-        print(published)
-
         preName = ""
         preDate = ""
         while chat.is_alive():
@@ -81,6 +79,15 @@ def sse(BCID, Email):
                 for c in items:
                     if not (preDate == c.datetime and preName == c.author.name):
                         mes = re.sub(r':[^:]+:', '', c.message)
+                        data2 = {
+                            "author": c.author.name,
+                            "dateTime": c.datetime,
+                            "message": mes,
+                            "emotion3": random.randint(0,2),
+                            "emotion7": random.randint(0,6)
+                        }
+                        yield f"data:{data2}\n\n"
+                        """
                         IP = os.environ.get('server_IP')
                         emotion = requests.get(
                             IP + c.message
@@ -107,6 +114,7 @@ def sse(BCID, Email):
                         requests.get(URI, data=json.dumps(data2), headers=header)
                         preName = c.author.name
                         preDate = c.datetime
+                        """
 
             except ClientDisconnected:
                 print("클라이언트 연결 종료")
@@ -145,36 +153,41 @@ def feedback(BCID):
     URI = f'http://localhost:8080/getChat?BCID={BCID}'
     data = requests.get(URI).json()
     published = datetime.strptime(data['published'], '%Y-%m-%dT%H:%M:%SZ')
-    time_data = {}
+    published = published + timedelta(hours=9)
+    time_data = []
     print(data)
     for key, value in data['viewer'].items():
-        time_data[key] = [0, 0]
+        time_data.append((int(key)-32400, [0, 0]))
 
+    time_data = sorted(time_data)
     for item in data['cd']:
         t = datetime.strptime(item['time'], '%Y-%m-%d %H:%M:%S')
         sec = (t - published).seconds
-        for key, value in data['viewer'].items():
-            print(value)
-            if sec > int(key):
-                time_data[key][item['emotion3']] += 1
-                break
-    min_Viewr = int(jsonmax(data['viewer']) * 0.7)
-    max_emo = -1
-    max_idx = 0
-    min_emo = 9999999999999
-    min_idx = 0
-    for key, value in time_data.items():
-        print(value)
-        if int(key) > min_Viewr:
-            if value[1] > max_emo:
-                max_emo = value[1]
-                max_idx = key
-        if int(key) > min_Viewr:
-            if value[0] < min_emo:
-                min_emo = value[0]
-                min_idx = key
+        pre = 0
+        for key, val in enumerate(time_data):
 
-    return f'{str((max_idx))}\n{str(min_idx)}'
+            if sec < val[0]:
+                time_data[pre][1][item['emotion3']] += 1
+                break
+            pre = key
+
+    min_Viewr = int(jsonmax(data['viewer']) * 0.7)
+    po_emo = 0
+    po_idx = 0
+    na_emo = 0
+    na_idx = 0
+    for item in time_data:
+        print(f'{item[0]}   {item[1]}')
+        if int(item[0]) > min_Viewr:
+            if item[1][1] > po_emo:
+                po_emo = item[1][1]
+                po_idx = item[0]
+        if int(key) > min_Viewr:
+            if item[1][0] > na_emo:
+                na_emo = item[1][0]
+                na_idx = item[0]
+
+    return f'{str(po_idx)}\n{str(na_idx)}'
 
 
 def jsonmax(data):
