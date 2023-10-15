@@ -65,7 +65,7 @@ public class Controller {
     }
 
     //결제 정보 저장
-    @GetMapping("/saveClass")
+    @RequestMapping("/saveClass")
 //    상품이름:name
 //    결제금액:amount
 //    주문번호:merchant_uid
@@ -89,7 +89,7 @@ public class Controller {
         return userService.getPurchaseHistory(email);
     }
 
-    @GetMapping("/saveViewer")
+    @RequestMapping("/saveViewer")
     public String saveViewer(@RequestParam("BCID")String BCID,
                              @RequestParam("sec")String sec,
                              @RequestParam("viewer")String viewer){

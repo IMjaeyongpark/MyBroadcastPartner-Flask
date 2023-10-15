@@ -18,19 +18,41 @@ from Po import Po
 from dotenv import load_dotenv
 import os
 
-app = Flask(__name__)
+
+
+def create_app():
+    app = Flask(__name__)
+
+    # 여기에 모든 초기화 코드를 추가
+
+    return app
+
+app = create_app()
+
 api = Api(app)
 app.config['JSON_AS_ASCII'] = False
 CORS(app)
 
-# 인기 급상승 10위
-api.add_resource(Po, '/po')
+
 
 running = True
 print("실행레쓰고")
 
 load_dotenv()
 youtube_api_key = os.environ.get('youtube_api_key')
+
+from keybert import KeyBERT
+from kiwipiepy import Kiwi
+from transformers import BertModel
+from youtube_transcript_api import YouTubeTranscriptApi
+
+# 모델 및 객체 초기화
+model = BertModel.from_pretrained('skt/kobert-base-v1')
+kw_model = KeyBERT(model)
+kiwi = Kiwi()
+
+# 인기 급상승 10위
+api.add_resource(Po, '/po')
 
 
 # 실시간 구독자 수
@@ -83,8 +105,8 @@ def sse(BCID, Email):
                             "author": c.author.name,
                             "dateTime": c.datetime,
                             "message": mes,
-                            "emotion3": random.randint(0,2),
-                            "emotion7": random.randint(0,6)
+                            "emotion3": random.randint(0, 2),
+                            "emotion7": random.randint(0, 6)
                         }
                         yield f"data:{data2}\n\n"
                         """
@@ -155,9 +177,8 @@ def feedback(BCID):
     published = datetime.strptime(data['published'], '%Y-%m-%dT%H:%M:%SZ')
     published = published + timedelta(hours=9)
     time_data = []
-    print(data)
     for key, value in data['viewer'].items():
-        time_data.append((int(key)-32400, [0, 0]))
+        time_data.append((int(key) - 32400, [0, 0]))
 
     time_data = sorted(time_data)
     for item in data['cd']:
@@ -177,7 +198,6 @@ def feedback(BCID):
     na_emo = 0
     na_idx = 0
     for item in time_data:
-        print(f'{item[0]}   {item[1]}')
         if int(item[0]) > min_Viewr:
             if item[1][1] > po_emo:
                 po_emo = item[1][1]
@@ -187,7 +207,50 @@ def feedback(BCID):
                 na_emo = item[1][0]
                 na_idx = item[0]
 
+    print(topic())
+
     return f'{str(po_idx)}\n{str(na_idx)}'
+
+def topic():
+    print('왔니')
+    # YOUTUBE SCRIPT
+    srt = YouTubeTranscriptApi.get_transcript("nAK6IWev38E", languages=["ko"])
+    # spring에서 넘어온 긍정이 가장 많은 시간대
+    emotionhour = 1300
+    # 전체 영상 시간
+    videohour = 3150
+
+    for i in srt:
+        absNum = abs(i['start'] - emotionhour)
+        if absNum < videohour:
+            videohour = absNum
+            # 근삿값
+            nearhour = i['start']
+
+    # 영상 스크립트 추출시간
+    durationEndhour = nearhour + 100
+    durationStarthour = nearhour - 50
+    data = []
+    for i in srt:
+        if (i['start'] >= durationStarthour and i['start'] < durationEndhour):
+            data.append(i['text'].replace('[ __ ]', ''))
+
+    # 리스트 to string
+    result = ' '.join(s for s in data)
+
+    # 명사 추출 함수
+    def noun_extractor(text):
+        results = []
+        result = kiwi.analyze(text)
+        for token, pos, _, _ in result[0][0]:
+            if len(token) != 1 and pos.startswith('N') or pos.startswith('SL'):
+                results.append(token)
+        return results
+
+    text = ' '.join(noun_extractor(result))
+    keywords = kw_model.extract_keywords(text, keyphrase_ngram_range=(1, 1), stop_words=None, top_n=10)
+    print(keywords)
+    return keywords
 
 
 def jsonmax(data):
@@ -197,6 +260,8 @@ def jsonmax(data):
         if value == max_value:
             return index
         index += 1
+
+
 
 
 if __name__ == "__main__":
