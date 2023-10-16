@@ -168,7 +168,7 @@ def feedback(BCID):
     published = datetime.strptime(data['published'], '%Y-%m-%dT%H:%M:%SZ')
     published = published + timedelta(hours=9)
     time_data = []
-    emotion7 = [0, 0, 0, 0, 0, 0, 0]
+    emotion7 = [0, 0, 0, 0, -999999, 0, 0]
 
     for key, value in data['viewer'].items():
         time_data.append((int(key) - 32400, [0, 0, [0, 0, 0, 0, 0, 0, 0]]))
@@ -188,6 +188,9 @@ def feedback(BCID):
             pre = key
 
     min_Viewr = int(jsonmax(data['viewer']) * 0.7)
+    max_emo7 = emotion7.index(max(emotion7))
+    emo7_max = 0
+    emo7_idx = 0
     po_emo = 0
     po_idx = 0
     na_emo = 0
@@ -200,11 +203,18 @@ def feedback(BCID):
             if item[1][0] > na_emo:
                 na_emo = item[1][0]
                 na_idx = item[0]
-
+            if item[1][2][max_emo7] > emo7_max:
+                emo7_max = item[1][2][max_emo7]
+                emo7_idx = item[0]
+    print(time_data)
     # URI = f'{topic_IP}nAK6IWev38E'
     # print(requests.get(URI).json())
-
-    return f'{str(po_idx)}\n{str(na_idx)}'
+    data = {
+        "positive": po_idx,
+        "negative": na_idx,
+        "emotion7": (max_emo7, emo7_idx)
+    }
+    return data
 
 
 def jsonmax(data):
