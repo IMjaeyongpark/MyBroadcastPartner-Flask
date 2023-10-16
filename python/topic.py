@@ -1,4 +1,12 @@
+from keybert import KeyBERT
+from kiwipiepy import Kiwi
+from transformers import BertModel
+from youtube_transcript_api import YouTubeTranscriptApi
 
+# 모델 및 객체 초기화
+model = BertModel.from_pretrained('skt/kobert-base-v1')
+kw_model = KeyBERT(model)
+kiwi = Kiwi()
 
 def topic():
     print('왔니')

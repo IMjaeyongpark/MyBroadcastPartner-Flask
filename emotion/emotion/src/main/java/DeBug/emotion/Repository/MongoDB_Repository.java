@@ -247,15 +247,10 @@ public class MongoDB_Repository {
         FeedbackData FD = new FeedbackData();
         FD.setPublished(BC.getPublished());
         FD.setViewer(BC.getViewer());
-        System.out.println(FD.getViewer().toString());
         List<Author> Authors = mongoDBAuthorRepository.findByBroadCast(BC);
-
         for (Author Author : Authors) {
             for (Chat chat : Author.getChat()) {
-                if (chat.getEmotion3() == 1 || chat.getEmotion3() == 0) {
-                    Chat_Data CD = new Chat_Data(chat.getDateTime(),chat.getEmotion3());
-                    FD.cd.add(CD);
-                }
+                    FD.cd.add(chat);
             }
         }
         return FD;

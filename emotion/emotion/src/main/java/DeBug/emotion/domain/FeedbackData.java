@@ -12,5 +12,5 @@ import java.util.List;
 public class FeedbackData {
     private JSONObject Viewer;
     private String published;
-    public List<Chat_Data> cd = new ArrayList<Chat_Data>();
+    public List<Chat> cd = new ArrayList<Chat>();
 }
