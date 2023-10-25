@@ -31,6 +31,9 @@ public class BroadCast {
     public  int[] All_Emotion7 = new int[7];
     private String published;
     public JSONObject Viewer = new JSONObject();
+
+    private Topic topic = null;
+
     @DBRef
     private User user;
 }

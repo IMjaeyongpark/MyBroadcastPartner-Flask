@@ -21,13 +21,10 @@ import os
 
 def create_app():
     app = Flask(__name__)
-
-    # 여기에 모든 초기화 코드를 추가
-
     return app
 
-
 app = create_app()
+
 
 api = Api(app)
 app.config['JSON_AS_ASCII'] = False
@@ -42,6 +39,8 @@ topic_IP = os.environ.get('topic_IP')
 
 # 인기 급상승 10위
 api.add_resource(Po, '/po')
+
+
 
 
 # 실시간 구독자 수
@@ -91,16 +90,15 @@ def sse(BCID, Email):
                     if not (preDate == c.datetime and preName == c.author.name):
                         mes = re.sub(r':[^:]+:', '', c.message)
 
-                        """
-                        data2 = {
+
+                        """data2 = {
                             "author": c.author.name,
                             "dateTime": c.datetime,
                             "message": mes,
                             "emotion3": random.randint(0, 2),
                             "emotion7": random.randint(0, 6)
                         }
-                        yield f"data:{data2}\n\n"
-                        """
+                        yield f'data:{data2}\n\n''"""
 
                         IP = os.environ.get('server_IP')
                         emotion = requests.get(
@@ -132,7 +130,7 @@ def sse(BCID, Email):
             except ClientDisconnected:
                 print("클라이언트 연결 종료")
                 break
-
+    print("zz")
     return Response(generate(BCID, Email), mimetype='text/event-stream')
 
 
@@ -169,7 +167,6 @@ def feedback(BCID):
     published = published + timedelta(hours=9)
     time_data = []
     emotion7 = [0, 0, 0, 0, -999999, 0, 0]
-
     for key, value in data['viewer'].items():
         time_data.append((int(key) - 32400, [0, 0, [0, 0, 0, 0, 0, 0, 0]]))
 
@@ -206,15 +203,15 @@ def feedback(BCID):
             if item[1][2][max_emo7] > emo7_max:
                 emo7_max = item[1][2][max_emo7]
                 emo7_idx = item[0]
-    print(time_data)
+
     # URI = f'{topic_IP}nAK6IWev38E'
     # print(requests.get(URI).json())
     data = {
-        "positive": po_idx,
-        "negative": na_idx,
+        "positive": str(po_idx),
+        "negative": str(na_idx),
         "emotion7": (max_emo7, emo7_idx)
     }
-    return data
+    return json.dumps(data)
 
 
 def jsonmax(data):

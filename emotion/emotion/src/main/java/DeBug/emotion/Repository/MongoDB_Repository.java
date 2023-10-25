@@ -31,15 +31,15 @@ public class MongoDB_Repository {
     public User insert_User(User user) {
 
         User u = mongoDBUserRepository.findOneBy_id(user.get_id());
-        if (u.getDate() != null && u.getDate().isBefore(LocalDateTime.now())) {
-            user.setClass_name("basic");
+        if (u == null || u.getDate() == null || u.getDate().isBefore(LocalDateTime.now())) {
+            user.setClass_name("베이직");
             user.setDate(null);
         } else {
             user.setClass_name(u.getClass_name());
             user.setDate(u.getDate());
         }
         mongoDBUserRepository.save(user);
-        return u;
+        return user;
     }
 
     //유저의 방송 정보 저장
@@ -47,7 +47,7 @@ public class MongoDB_Repository {
         //방송정보 저장
         try {
             BroadCast TMP = mongoDBBroadCastRepository.findOneBy_id(BC.get_id());
-            if(TMP != null){
+            if (TMP != null) {
                 return "200";
             }
             mongoDBBroadCastRepository.save(BC);
@@ -163,6 +163,88 @@ public class MongoDB_Repository {
         }
     }
 
+
+    //결제 정보 저장
+    public String saveClass(Purchase_History PH) {
+        try {
+            User user = mongoDBUserRepository.findOneBy_id(PH.getUser().get_id());
+
+            //받아온 정보 저장
+            PH.setEnd_date(PH.getStart_date().plusMonths(1));
+            user.setDate(PH.getStart_date().plusMonths(1));
+            user.setClass_name(PH.getName());
+
+            mongoPurchaseHistoryRepository.insert(PH);
+            mongoDBUserRepository.save(user);
+
+            return "200";
+        } catch (Exception e) {
+            return "400";
+        }
+    }
+
+    //결제정보
+    public List<Purchase_History> getPurchaseHistory(String email) {
+        User user = new User();
+        user.set_id(email);
+        List<Purchase_History> list = mongoPurchaseHistoryRepository.findByUser(user);
+        Collections.reverse(list);
+        return list;
+    }
+
+    //시청자 수 저장
+    public String saveViewer(String BCID, String sec, String viewer) {
+        try {
+            BroadCast BC = mongoDBBroadCastRepository.findOneBy_id(BCID);
+            BC.Viewer.put(sec, Integer.parseInt(viewer));
+
+            mongoDBBroadCastRepository.save(BC);
+            return "200";
+        } catch (Exception e) {
+            System.out.println("error");
+            return "400";
+        }
+    }
+
+    //채팅데이터 반환
+    public FeedbackData getChat(String BCID) {
+
+        BroadCast BC = mongoDBBroadCastRepository.findOneBy_id(BCID);
+        FeedbackData FD = new FeedbackData();
+        FD.setPublished(BC.getPublished());
+        FD.setViewer(BC.getViewer());
+        List<Author> Authors = mongoDBAuthorRepository.findByBroadCast(BC);
+        for (Author Author : Authors) {
+            for (Chat chat : Author.getChat()) {
+                FD.cd.add(chat);
+            }
+        }
+        return FD;
+    }
+
+    //방송아이디로 방송정보 가져오고 토픽 정보 확인
+    public Topic getTopic(String BCID) {
+        try {
+            BroadCast BC = mongoDBBroadCastRepository.findOneBy_id(BCID);
+            Topic topic = BC.getTopic();
+            return topic;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public String saveTopic(String BCID, Topic topic) {
+        try {
+            BroadCast BC = mongoDBBroadCastRepository.findOneBy_id(BCID);
+            BC.setTopic(topic);
+            mongoDBBroadCastRepository.save(BC);
+            return "200";
+        } catch (Exception e) {
+            return "400";
+        }
+    }
+
+
     public String testdata() {
         int[] a = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
@@ -199,61 +281,6 @@ public class MongoDB_Repository {
         mongoDBYearRepositoy.save(y);
 
         return "200";
-    }
-
-
-    public String saveClass(Purchase_History PH) {
-        try {
-            User user = mongoDBUserRepository.findOneBy_id(PH.getUser().get_id());
-
-            //받아온 정보 저장
-            PH.setEnd_date(PH.getStart_date().plusMonths(1));
-            user.setDate(PH.getStart_date().plusMonths(1));
-            user.setClass_name(PH.getName());
-
-            mongoPurchaseHistoryRepository.insert(PH);
-            mongoDBUserRepository.save(user);
-
-            return "200";
-        } catch (Exception e) {
-            return "400";
-        }
-    }
-
-    public List<Purchase_History> getPurchaseHistory(String email) {
-        User user = new User();
-        user.set_id(email);
-        List<Purchase_History> list = mongoPurchaseHistoryRepository.findByUser(user);
-        Collections.reverse(list);
-        return list;
-    }
-
-    public String saveViewer(String BCID, String sec, String viewer) {
-        try {
-            BroadCast BC = mongoDBBroadCastRepository.findOneBy_id(BCID);
-            BC.Viewer.put(sec, Integer.parseInt(viewer));
-
-            mongoDBBroadCastRepository.save(BC);
-            return "200";
-        } catch (Exception e) {
-            System.out.println("error");
-            return "400";
-        }
-    }
-
-    public FeedbackData getChat(String BCID) {
-
-        BroadCast BC = mongoDBBroadCastRepository.findOneBy_id(BCID);
-        FeedbackData FD = new FeedbackData();
-        FD.setPublished(BC.getPublished());
-        FD.setViewer(BC.getViewer());
-        List<Author> Authors = mongoDBAuthorRepository.findByBroadCast(BC);
-        for (Author Author : Authors) {
-            for (Chat chat : Author.getChat()) {
-                    FD.cd.add(chat);
-            }
-        }
-        return FD;
     }
 
 

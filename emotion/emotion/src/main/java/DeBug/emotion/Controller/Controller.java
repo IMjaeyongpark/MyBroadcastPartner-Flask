@@ -5,7 +5,6 @@ import DeBug.emotion.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -21,15 +20,19 @@ public class Controller {
     private final Service userService;
 
     //토큰 받아오기
+    //POST
     @GetMapping("/find")
     public User find_User(@RequestParam("id_token") String idToken,
                           @RequestParam("access_token") String access_token) {
+        System.out.println(idToken);
+        System.out.println(access_token);
         //jwt PAYLOAD부분 추출
         String payload = idToken.split("[.]")[1];
         return userService.getSubject(payload, access_token);
     }
 
     //본인확인
+    //POST
     @RequestMapping("/identification")
     public String identification(@RequestParam("email") String email,
                                  @RequestParam("URI") String URI) {
@@ -40,11 +43,12 @@ public class Controller {
         String BCID = URI.replace("https://", "").replace("www.", "")
                 .replace("youtube.com/watch?v=", "");
 
-        return userService.identification(user, URI, BCID);
+        return userService.identification(user, BCID);
     }
-
+   
 
     //채팅 저장 및 전달
+    //POST
     @RequestMapping("/chat")
     public String chat(@RequestParam("email") String email,
                        @RequestBody Chat chat,
@@ -65,6 +69,7 @@ public class Controller {
     }
 
     //결제 정보 저장
+    //POST
     @RequestMapping("/saveClass")
 //    상품이름:name
 //    결제금액:amount
@@ -77,8 +82,8 @@ public class Controller {
                             @RequestParam("apply_num") String apply_num) {
         User user = new User();
         user.set_id(email);
-        Purchase_History PH = new Purchase_History(apply_num,name,amount,merchant_uid,
-                LocalDateTime.now(),LocalDateTime.now().plusMonths(1),user);
+        Purchase_History PH = new Purchase_History(apply_num,name,amount,merchant_uid);
+        PH.setUser(user);
 
         return userService.saveClass(PH);
     }
@@ -89,6 +94,8 @@ public class Controller {
         return userService.getPurchaseHistory(email);
     }
 
+    //시청자수 저장
+    //POST
     @RequestMapping("/saveViewer")
     public String saveViewer(@RequestParam("BCID")String BCID,
                              @RequestParam("sec")String sec,
@@ -99,6 +106,11 @@ public class Controller {
     @GetMapping("/getChat")
     public FeedbackData getChat(@RequestParam("BCID")String BCID){
         return userService.getChat(BCID);
+    }
+
+    @GetMapping("getTopic")
+    public Topic getTopic(@RequestParam("BCID")String BCID){
+        return userService.getTopic(BCID);
     }
 
     @GetMapping("/testdata")

@@ -27,7 +27,7 @@ class Po(Resource):
             tmp = {}
             tmp['url'] = 'https://www.youtube.com/watch?v=' + video['id']
             tmp['title'] = video['snippet']['title']
-            tmp['thumbnails_Url'] = video['snippet']['thumbnails']['default']['url']
+            tmp['thumbnails_Url'] = video['snippet']['thumbnails']['medium']['url']
             tmp['views'] = video['statistics']['viewCount']
             data['data'].append(tmp)
         res = json.dumps(data, ensure_ascii=False).encode('utf8')
