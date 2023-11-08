@@ -4,11 +4,9 @@ package DeBug.emotion.Service;
 import DeBug.emotion.Repository.MongoDB_Repository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
-import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 @Configuration
-public class Config implements WebSocketMessageBrokerConfigurer {
+public class Config{
 
 
     @Bean
@@ -22,9 +20,4 @@ public class Config implements WebSocketMessageBrokerConfigurer {
     }
 
 
-
-    @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/socket").setAllowedOrigins("*").withSockJS();
-    }
 }
