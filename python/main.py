@@ -89,6 +89,7 @@ def sse(BCID, Email):
                 for c in items:
                     if not (preDate == c.datetime and preName == c.author.name):
                         mes = re.sub(r':[^:]+:', '', c.message)
+                        print(mes)
 
 
                         """data2 = {
@@ -121,9 +122,8 @@ def sse(BCID, Email):
                             "emotion7": emotion['emotion7']
                         }
                         yield f"data:{data2}\n\n"
-                        header = {"Content-type": "application/json", "Accept": "text/plain"}
                         URI = "http://localhost:8080/chat?email=" + Email + "&BCID=" + BCID + "&name=" + c.author.name
-                        requests.get(URI, data=json.dumps(data2), headers=header)
+                        do_async(URI, data2)
                         preName = c.author.name
                         preDate = c.datetime
 
@@ -133,6 +133,10 @@ def sse(BCID, Email):
     print("zz")
     return Response(generate(BCID, Email), mimetype='text/event-stream')
 
+async def do_async(URI,data2):
+    header = {"Content-type": "application/json", "Accept": "text/plain"}
+    requests.get(URI, data=json.dumps(data2), headers=header)
+    print("완료!")
 
 # 시청자 수
 @app.route('/concurrentViewers/<BCID>')
