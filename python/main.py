@@ -122,7 +122,7 @@ def sse(BCID, Email):
                             "emotion7": emotion['emotion7']
                         }
                         yield f"data:{data2}\n\n"
-                        URI = "http://localhost:8080/chat?email=" + Email + "&BCID=" + BCID + "&name=" + c.author.name
+                        URI = "http://localhost:8080/broadcast/chat?email=" + Email + "&BCID=" + BCID + "&name=" + c.author.name
                         do_async(URI, data2)
                         preName = c.author.name
                         preDate = c.datetime
@@ -156,7 +156,7 @@ def concurrentViewers(BCID):
             vi = data['items'][0]['liveStreamingDetails']['concurrentViewers']
             yield f"data:{vi}\n\n"
             t = datetime.now() - published
-            spurl = f'http://localhost:8080/saveViewer?BCID={BCID}&sec={t.seconds}&viewer={vi}'
+            spurl = f'http://localhost:8080/broadcast/saveViewer?BCID={BCID}&sec={t.seconds}&viewer={vi}'
             requests.get(spurl, headers=header)
             time.sleep(15)
 
@@ -165,7 +165,7 @@ def concurrentViewers(BCID):
 
 @app.route("/feedback/<BCID>")
 def feedback(BCID):
-    URI = f'http://localhost:8080/getChat?BCID={BCID}'
+    URI = f'http://localhost:8080/broadcast/getChat?BCID={BCID}'
     data = requests.get(URI).json()
     published = datetime.strptime(data['published'], '%Y-%m-%dT%H:%M:%SZ')
     published = published + timedelta(hours=9)
