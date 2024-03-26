@@ -9,7 +9,7 @@ import os
 load_dotenv()
 
 #인기 급상승 10위
-class Po(Resource):
+class top10(Resource):
     def get(self):
         youtube_api_key = os.environ.get('youtube_api_key')
         api_url = 'https://www.googleapis.com/youtube/v3/videos'
