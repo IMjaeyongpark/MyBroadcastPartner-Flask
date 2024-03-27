@@ -7,7 +7,6 @@ from flask_cors import CORS
 from datetime import timedelta
 import datetime
 import Ch_api
-from flask import jsonify
 
 from websocket import WebSocket
 from cmd_type import CHZZK_CHAT_CMD
@@ -266,12 +265,12 @@ class ChzzkChat:
 
 # 아프리카 채팅 가져오기
 @app.route('/afreecaTV')
-def afreecaTV_sse():
+async def afreecaTV_sse():
     # 유니코드 및 기타 상수
     F = "\x0c"
     ESC = "\x1b\t"
     SEPARATOR = "+" + "-" * 70 + "+"
-
+    messages = []
     # SSL 컨텍스트 생성
     def create_ssl_context():
         ssl_context = ssl.create_default_context()
@@ -287,7 +286,7 @@ def afreecaTV_sse():
         if len(messages) > 5 and messages[1] not in ['-1', '1'] and '|' not in messages[1]:
             user_id, comment, user_nickname = messages[2], messages[1], messages[6]
             print(f"{user_nickname}[{user_id}] : {comment}")
-            return f"{user_nickname}[{user_id}] : {comment}\n\n"
+
         else:
             # 채팅 뿐만 아니라 다른 메세지도 동시에 내려옵니다.
             pass
@@ -334,24 +333,20 @@ def afreecaTV_sse():
                         await asyncio.sleep(60)  # 1분 = 60초
                         await websocket.send(PING_PACKET)
 
-                async def receive_messages():
-                    while True:
-                        data = await websocket.recv()
+                while True:
+                    data = await websocket.recv()
+                    parts = data.split(b'\x0c')
+                    messages = [part.decode('utf-8') for part in parts]
+                    if len(messages) > 5 and messages[1] not in ['-1', '1'] and '|' not in messages[1]:
+                        user_id, comment, user_nickname = messages[2], messages[1], messages[6]
+                        print(f"{user_nickname}[{user_id}] : {comment}")
+                        yield f"{user_nickname}[{user_id}] : {comment}\n\n"
 
-                        parts = data.split(b'\x0c')
-                        messages = [part.decode('utf-8') for part in parts]
-                        if len(messages) > 5 and messages[1] not in ['-1', '1'] and '|' not in messages[1]:
-                            user_id, comment, user_nickname = messages[2], messages[1], messages[6]
-                            print(f"{user_nickname}[{user_id}] : {comment}")
-                            yield f"{user_nickname}[{user_id}] : {comment}\n\n"
-                        else:
-                            # 채팅 뿐만 아니라 다른 메세지도 동시에 내려옵니다.
-                            pass
+                    else:
+                        # 채팅 뿐만 아니라 다른 메세지도 동시에 내려옵니다.
+                        pass
 
-                yield receive_messages()
-                await asyncio.gather(
-                    ping(),
-                )
+
 
         except Exception as e:
             print(f"  ERROR: 웹소켓 연결 오류 - {e}")
@@ -360,9 +355,13 @@ def afreecaTV_sse():
     BID = flask.request.args.get("BID")
     BNO = flask.request.args.get("BNO")
 
-    # 비동기 제너레이터를 일반 제너레이터로 변환하여 반환
-    return Response(connect_to_chat(f'/afreecaTV/{BID}/{BNO}', ssl_context), mimetype='text/event-stream')
+    async def generate():
+        async for message in connect_to_chat(f'/afreecaTV/{BID}/{BNO}', ssl_context):
+            yield message
 
+        # 비동기 함수를 직접 호출하여 SSE 스트림 생성
+
+    return Response(generate(), mimetype='text/event-stream')
 
 # 치지직 실시간 댓글 분석
 @app.route('/Chlive')
