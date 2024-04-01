@@ -354,7 +354,6 @@ def afreecaTV_sse(BID, BNO):
 # 치지직 실시간 댓글 분석
 @app.route('/Chlive/<BCID>')
 def Ch_sse(BCID):
-    print(BCID)
     with open('./cookies.json') as f:
         cookies = json.load(f)
 
@@ -365,7 +364,7 @@ def Ch_sse(BCID):
 # 유튜브 실시간 댓글 분석
 @app.route('/live/<BCID>/<Email>')
 def sse(BCID, Email):
-    print(BCID)
+
     return Response(generate(BCID, Email), content_type='text/event-stream; charset=utf-8')
 
 
