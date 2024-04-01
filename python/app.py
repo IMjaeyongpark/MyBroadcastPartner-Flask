@@ -2,7 +2,7 @@ import time
 import random
 
 import flask
-from flask import Flask, Response
+from flask import Flask, Response, stream_with_context
 from flask_cors import CORS
 from datetime import timedelta
 import datetime
@@ -233,8 +233,6 @@ class ChzzkChat:
                 else:
                     continue
 
-                messages = []
-
                 for chat_data in raw_message['bdy']:
                     if chat_data['uid'] == 'anonymous':
                         nickname = '익명의 후원자'
@@ -263,122 +261,110 @@ class ChzzkChat:
                 print(f"An error occurred: {e}")
 
 
-# 아프리카 채팅 가져오기
-@app.route('/afreecaTV')
-async def afreecaTV_sse():
-    # 유니코드 및 기타 상수
-    F = "\x0c"
-    ESC = "\x1b\t"
-    SEPARATOR = "+" + "-" * 70 + "+"
-    messages = []
-    # SSL 컨텍스트 생성
-    def create_ssl_context():
-        ssl_context = ssl.create_default_context()
-        ssl_context.load_verify_locations(certifi.where())
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
-        return ssl_context
-
-    # 메시지 디코드 및 출력
-    def decode_message(bytes):
-        parts = bytes.split(b'\x0c')
-        messages = [part.decode('utf-8') for part in parts]
-        if len(messages) > 5 and messages[1] not in ['-1', '1'] and '|' not in messages[1]:
-            user_id, comment, user_nickname = messages[2], messages[1], messages[6]
-            print(f"{user_nickname}[{user_id}] : {comment}")
-
-        else:
-            # 채팅 뿐만 아니라 다른 메세지도 동시에 내려옵니다.
-            pass
-
-    # 바이트 크기 계산
-    def calculate_byte_size(string):
-        return len(string.encode('utf-8')) + 6
-
-    # 채팅에 연결
-    async def connect_to_chat(url, ssl_context):
-        try:
-            BNO, BID = url.split('/')[-1], url.split('/')[-2]
-            CHDOMAIN, CHATNO, FTK, TITLE, BJID, CHPT = get_player_live(BNO, BID)
-            print(f"{SEPARATOR}\n"
-                  f"  CHDOMAIN: {CHDOMAIN}\n  CHATNO: {CHATNO}\n  FTK: {FTK}\n"
-                  f"  TITLE: {TITLE}\n  BJID: {BJID}\n  CHPT: {CHPT}\n"
-                  f"{SEPARATOR}")
-        except Exception as e:
-            print(f"  ERROR: API 호출 실패 - {e}")
-            return
-
-        try:
-            async with websockets.connect(
-                    f"wss://{CHDOMAIN}:{CHPT}/Websocket/{BID}",
-                    subprotocols=['chat'],
-                    ssl=ssl_context,
-                    ping_interval=None
-            ) as websocket:
-                # 최초 연결시 전달하는 패킷
-                CONNECT_PACKET = f'{ESC}000100000600{F * 3}16{F}'
-                # 메세지를 내려받기 위해 보내는 패킷
-                JOIN_PACKET = f'{ESC}0002{calculate_byte_size(CHATNO):06}00{F}{CHATNO}{F * 5}'
-                # 주기적으로 핑을 보내서 메세지를 계속 수신하는 패킷
-                PING_PACKET = f'{ESC}000000000100{F}'
-
-                await websocket.send(CONNECT_PACKET)
-                print(f"  연결 성공, 채팅방 정보 수신 대기중...")
-                await asyncio.sleep(2)
-                await websocket.send(JOIN_PACKET)
-
-                async def ping():
-                    while True:
-                        # 5분동안 핑이 보내지지 않으면 소켓은 끊어집니다.
-                        await asyncio.sleep(60)  # 1분 = 60초
-                        await websocket.send(PING_PACKET)
-
-                while True:
-                    data = await websocket.recv()
-                    parts = data.split(b'\x0c')
-                    messages = [part.decode('utf-8') for part in parts]
-                    if len(messages) > 5 and messages[1] not in ['-1', '1'] and '|' not in messages[1]:
-                        user_id, comment, user_nickname = messages[2], messages[1], messages[6]
-                        print(f"{user_nickname}[{user_id}] : {comment}")
-                        yield f"{user_nickname}[{user_id}] : {comment}\n\n"
-
-                    else:
-                        # 채팅 뿐만 아니라 다른 메세지도 동시에 내려옵니다.
-                        pass
+# 유니코드 및 기타 상수
+F = "\x0c"
+ESC = "\x1b\t"
+SEPARATOR = "+" + "-" * 70 + "+"
 
 
+def create_ssl_context():
+    ssl_context = ssl.create_default_context()
+    ssl_context.load_verify_locations(certifi.where())
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+    return ssl_context
 
-        except Exception as e:
-            print(f"  ERROR: 웹소켓 연결 오류 - {e}")
 
+def decode_message(bytes):
+    parts = bytes.split(b'\x0c')
+    messages = [part.decode('UTF-8') for part in parts]
+    if len(messages) > 5 and messages[1] not in ['-1', '1'] and '|' not in messages[1]:
+        user_id, comment, user_nickname = messages[2], messages[1], messages[6]
+        if 'fw=' not in user_nickname:
+            data2 = {
+                "author": user_nickname,
+                #"dateTime": now,
+                "message": comment,
+                "emotion3": random.randint(0, 2),
+                "emotion7": random.randint(0, 6),
+                "platform": 2
+            }
+            return data2
+
+    else:
+        return None
+
+
+def calculate_byte_size(string):
+    return len(string.encode('UTF-8')) + 6
+
+
+async def fetch_messages(BID, BNO, ssl_context):
+    try:
+        # 여기에 실제 get_player_live(BNO, BID) 함수의 로직을 구현해야 합니다.
+        # 이 예제에서는 해당 함수가 미리 정의되었다고 가정합니다.
+        CHDOMAIN, CHATNO, FTK, TITLE, BJID, CHPT = get_player_live(BNO, BID)
+
+        async with websockets.connect(
+                f"wss://{CHDOMAIN}:{CHPT}/Websocket/{BID}",
+                subprotocols=['chat'],
+                ssl=ssl_context,
+                ping_interval=None
+        ) as websocket:
+            CONNECT_PACKET = f'{ESC}000100000600{F * 3}16{F}'
+            JOIN_PACKET = f'{ESC}0002{calculate_byte_size(CHATNO):06}00{F}{CHATNO}{F * 5}'
+            PING_PACKET = f'{ESC}000000000100{F}'
+
+            await websocket.send(CONNECT_PACKET)
+            await asyncio.sleep(2)
+            await websocket.send(JOIN_PACKET)
+
+            while True:
+                data = await websocket.recv()
+                mes = decode_message(data)
+                if mes:
+                    print(mes)
+                    yield f'data:{mes}\n\n'
+
+    except Exception as e:
+        print(f"Error: {e}")
+        yield "Error in websocket connection"
+
+
+def stream_messages(BID, BNO):
     ssl_context = create_ssl_context()
-    BID = flask.request.args.get("BID")
-    BNO = flask.request.args.get("BNO")
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    async_gen = fetch_messages(BID, BNO, ssl_context)
 
-    async def generate():
-        async for message in connect_to_chat(f'/afreecaTV/{BID}/{BNO}', ssl_context):
-            yield message
+    try:
+        while True:
+            message = loop.run_until_complete(async_gen.__anext__())
+            yield f'data: {message}\n\n'
+    except StopAsyncIteration:
+        pass
 
-        # 비동기 함수를 직접 호출하여 SSE 스트림 생성
+# 아프리카 채팅 가져오기
+@app.route('/afreecaTV/<BID>/<BNO>')
+def afreecaTV_sse(BID, BNO):
+    return Response(stream_with_context(stream_messages(BID, BNO)), content_type='text/event-stream; charset=utf-8')
 
-    return Response(generate(), mimetype='text/event-stream')
+
 
 # 치지직 실시간 댓글 분석
-@app.route('/Chlive')
-def Ch_sse():
+@app.route('/Chlive/<BCID>')
+def Ch_sse(BCID):
     with open('./cookies.json') as f:
         cookies = json.load(f)
 
-    chzzkchat = ChzzkChat(flask.request.args.get("BCID"), cookies)
-    return Response(chzzkchat.run(), mimetype='text/event-stream')
+    chzzkchat = ChzzkChat(BCID, cookies)
+    return Response(chzzkchat.run(), content_type='text/event-stream; charset=utf-8')
 
 
 # 유튜브 실시간 댓글 분석
 @app.route('/live/<BCID>/<Email>')
 def sse(BCID, Email):
-
-    return Response(generate(BCID, Email), mimetype='text/event-stream')
-
+    return Response(generate(BCID, Email), content_type='text/event-stream; charset=utf-8')
 
 
 # 실시간 구독자 수
