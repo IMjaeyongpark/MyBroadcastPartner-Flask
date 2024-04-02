@@ -323,7 +323,6 @@ async def fetch_messages(BID, BNO, ssl_context):
                 data = await websocket.recv()
                 mes = decode_message(data)
                 if mes:
-                    print(mes)
                     yield f'data:{mes}\n\n'
 
     except Exception as e:
@@ -340,7 +339,7 @@ def stream_messages(BID, BNO):
     try:
         while True:
             message = loop.run_until_complete(async_gen.__anext__())
-            yield f'data: {message}\n\n'
+            yield f'{message}\n\n'
     except StopAsyncIteration:
         pass
 
