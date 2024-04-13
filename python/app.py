@@ -1,7 +1,6 @@
 import time
 import random
 
-import flask
 from flask import Flask, Response, stream_with_context
 from flask_cors import CORS
 from datetime import timedelta
@@ -14,7 +13,6 @@ from cmd_type import CHZZK_CHAT_CMD
 import requests as requests
 import json
 import pytchat
-import pafy
 import re
 from werkzeug.exceptions import ClientDisconnected
 from datetime import datetime
@@ -53,7 +51,6 @@ api.add_resource(top10, '/po')
 
 
 def generate(BCID, Email):
-    print(BCID)
     chat = pytchat.create(video_id=BCID)
 
     # 방송 시작시간 가져오기
@@ -80,6 +77,7 @@ def generate(BCID, Email):
 
                     data2 = {
                         "author": c.author.name,
+                        "user_id": c.author.channelId,
                         "dateTime": c.datetime,
                         "message": mes,
                         "emotion3": random.randint(0, 2),
@@ -250,6 +248,7 @@ class ChzzkChat:
 
                     data2 = {
                         "author": nickname,
+                        "user_id": profile_data["userIdHash"],
                         "dateTime": now,
                         "message": chat_data["msg"],
                         "emotion3": random.randint(0, 2),
@@ -280,10 +279,11 @@ def decode_message(bytes):
     messages = [part.decode('UTF-8') for part in parts]
     if len(messages) > 5 and messages[1] not in ['-1', '1'] and '|' not in messages[1]:
         user_id, comment, user_nickname = messages[2], messages[1], messages[6]
-        if 'fw=' not in user_nickname:
+        if 'fw=' not in user_nickname and "1" not in user_nickname:
             data2 = {
                 "author": user_nickname,
-                #"dateTime": now,
+                "user_id": user_id,
+                # "dateTime": now,
                 "message": comment,
                 "emotion3": random.randint(0, 2),
                 "emotion7": random.randint(0, 6),
@@ -343,11 +343,11 @@ def stream_messages(BID, BNO):
     except StopAsyncIteration:
         pass
 
+
 # 아프리카 채팅 가져오기
 @app.route('/afreecaTV/<BID>/<BNO>')
 def afreecaTV_sse(BID, BNO):
     return Response(stream_with_context(stream_messages(BID, BNO)), content_type='text/event-stream; charset=utf-8')
-
 
 
 # 치지직 실시간 댓글 분석
@@ -363,7 +363,6 @@ def Ch_sse(BCID):
 # 유튜브 실시간 댓글 분석
 @app.route('/live/<BCID>/<Email>')
 def sse(BCID, Email):
-
     return Response(generate(BCID, Email), content_type='text/event-stream; charset=utf-8')
 
 
