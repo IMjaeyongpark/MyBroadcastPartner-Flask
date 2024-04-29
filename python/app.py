@@ -100,7 +100,7 @@ def generate(BCID, Email):
                     #     emotion['emotion3'] = 0
                     #
                     # data2 = {
-                    #     "author": c.author.name,
+                    #     "author": c.author.channelId,
                     #     "dateTime": c.datetime,
                     #     "message": mes,
                     #     "emotion3": emotion['emotion3'],
