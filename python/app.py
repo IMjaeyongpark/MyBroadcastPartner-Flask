@@ -1,7 +1,7 @@
 import time
 import random
 
-from flask import Flask, Response, stream_with_context
+from flask import Flask, Response, stream_with_context, jsonify
 from flask_cors import CORS
 from datetime import timedelta
 import datetime
@@ -372,23 +372,15 @@ def subcnt(channel_ID):
     youtube = build('youtube', 'v3', developerKey=youtube_api_key)
     request = youtube.channels().list(
         part='statistics',
-        id=channel_ID
+        forHandle=channel_ID
     )
     response = request.execute()
-
     if 'items' in response:
         statistics = response['items'][0]['statistics']
         subscriber_count = statistics['subscriberCount']
         return subscriber_count
     else:
         return "400"
-
-
-async def do_async(URI, data2):
-    header = {"Content-type": "application/json", "Accept": "text/plain"}
-    requests.get(URI, data=json.dumps(data2), headers=header)
-    print("완료!")
-
 
 # 시청자 수
 @app.route('/concurrentViewers/<BCID>')
@@ -469,6 +461,34 @@ def feedback(BCID):
     }
     return json.dumps(data)
 
+@app.route('/comment/<BCID>')
+def comment(BCID):
+    load_dotenv()
+    api_key = os.environ.get('youtube_api_key')
+    video_id = BCID
+
+    comments = list()
+    api_obj = build('youtube', 'v3', developerKey=api_key)
+    response = api_obj.commentThreads().list(part='snippet,replies', videoId=video_id).execute()
+
+    while response:
+        for item in response['items']:
+            comment = item['snippet']['topLevelComment']['snippet']
+            comments.append(
+                [comment['textDisplay'], comment['authorDisplayName'], comment['publishedAt'], comment['likeCount']])
+
+            if item['snippet']['totalReplyCount'] > 0:
+                for reply_item in item['replies']['comments']:
+                    reply = reply_item['snippet']
+                    comments.append(
+                        [reply['textDisplay'], reply['authorDisplayName'], reply['publishedAt'], reply['likeCount']])
+        if 'nextPageToken' in response:
+            response = api_obj.commentThreads().list(part='snippet,replies', videoId=video_id,
+                                                     pageToken=response['nextPageToken'], maxResults=100).execute()
+        else:
+            break
+
+    return comments
 
 def jsonmax(data):
     max_value = max(data.values())
