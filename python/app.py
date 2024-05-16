@@ -26,6 +26,9 @@ import ssl
 import asyncio
 import websockets
 from afreecatv_api import get_player_live
+from categoryTop10 import categoryTop10
+from myVideo import myVideo
+
 
 
 def create_app():
@@ -48,6 +51,10 @@ topic_IP = os.environ.get('topic_IP')
 
 # 인기 급상승 10위
 api.add_resource(top10, '/po')
+# 카테고리 키워드 10위
+api.add_resource(categoryTop10, '/categoryTop10')
+# 자신의 채널 정보 및 동영상 가져오기
+api.add_resource(myVideo, '/myVideo')
 
 
 def generate(BCID, Email):
@@ -382,6 +389,7 @@ def subcnt(channel_ID):
     else:
         return "400"
 
+
 # 시청자 수
 @app.route('/concurrentViewers/<BCID>')
 def concurrentViewers(BCID):
@@ -461,6 +469,7 @@ def feedback(BCID):
     }
     return json.dumps(data)
 
+
 @app.route('/comment/<BCID>')
 def comment(BCID):
     load_dotenv()
@@ -474,14 +483,28 @@ def comment(BCID):
     while response:
         for item in response['items']:
             comment = item['snippet']['topLevelComment']['snippet']
-            comments.append(
-                [comment['textDisplay'], comment['authorDisplayName'], comment['publishedAt'], comment['likeCount']])
+            data = {
+                'textDisplay': comment['textDisplay'],
+                'authorDisplayName': comment['authorDisplayName'],
+                'publishedAt': comment['publishedAt'],
+                'likeCount': comment['likeCount'],
+                "emotion3": random.randint(0, 2),
+                "emotion7": random.randint(0, 6),
+            }
+            comments.append(data)
 
             if item['snippet']['totalReplyCount'] > 0:
                 for reply_item in item['replies']['comments']:
                     reply = reply_item['snippet']
-                    comments.append(
-                        [reply['textDisplay'], reply['authorDisplayName'], reply['publishedAt'], reply['likeCount']])
+                    data = {
+                        'textDisplay': reply['textDisplay'],
+                        'authorDisplayName': reply['authorDisplayName'],
+                        'publishedAt': reply['publishedAt'],
+                        'likeCount': reply['likeCount'],
+                        "emotion3": random.randint(0, 2),
+                        "emotion7": random.randint(0, 6),
+                    }
+                    comments.append(data)
         if 'nextPageToken' in response:
             response = api_obj.commentThreads().list(part='snippet,replies', videoId=video_id,
                                                      pageToken=response['nextPageToken'], maxResults=100).execute()
@@ -489,6 +512,7 @@ def comment(BCID):
             break
 
     return comments
+
 
 def jsonmax(data):
     max_value = max(data.values())
