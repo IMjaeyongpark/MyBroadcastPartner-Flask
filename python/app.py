@@ -30,7 +30,6 @@ from categoryTop10 import categoryTop10
 from myVideo import myVideo
 
 
-
 def create_app():
     app = Flask(__name__)
     return app
@@ -89,6 +88,10 @@ def generate(BCID, Email):
                         "message": mes,
                         "emotion3": random.randint(0, 2),
                         "emotion7": random.randint(0, 6),
+                        "emotion7p": "{'Nervous': 0.0002247557567898184, 'Embrrassed': 0.000452860607765615,"
+                                     " 'Angry': 0.00013303376908879727, 'Sadness' :0.00041099119698628783,"
+                                     " 'Neutral': 0.8828464150428772, 'Happiness': 0.0006854483508504927,"
+                                     " 'Disgust': 0.11524643748998642}",
                         "platform": 0
                     }
                     yield f'data:{data2}\n\n'
@@ -260,6 +263,10 @@ class ChzzkChat:
                         "message": chat_data["msg"],
                         "emotion3": random.randint(0, 2),
                         "emotion7": random.randint(0, 6),
+                        "emotion7p": "{'Nervous': 0.0002247557567898184, 'Embrrassed': 0.000452860607765615,"
+                                     " 'Angry': 0.00013303376908879727, 'Sadness' :0.00041099119698628783,"
+                                     " 'Neutral': 0.8828464150428772, 'Happiness': 0.0006854483508504927,"
+                                     " 'Disgust': 0.11524643748998642}",
                         "platform": 1
                     }
                     yield f'data:{data2}\n\n'
@@ -294,6 +301,10 @@ def decode_message(bytes):
                 "message": comment,
                 "emotion3": random.randint(0, 2),
                 "emotion7": random.randint(0, 6),
+                "emotion7p": "{'Nervous': 0.0002247557567898184, 'Embrrassed': 0.000452860607765615,"
+                             " 'Angry': 0.00013303376908879727, 'Sadness' :0.00041099119698628783,"
+                             " 'Neutral': 0.8828464150428772, 'Happiness': 0.0006854483508504927,"
+                             " 'Disgust': 0.11524643748998642}",
                 "platform": 2
             }
             return data2
