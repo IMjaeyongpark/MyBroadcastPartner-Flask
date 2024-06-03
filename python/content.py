@@ -88,7 +88,7 @@ class content(Resource):
 
     # 시나리오 내용을 기반으로 해시태그 생성
     def generate_hashtags(self, text):
-        hashtags = self.process_videos_with_chatgpt(f"'{text}' 이 시나리오를 기준으로, 유튜브 해시태그 6개를 만들어주는데 해시태그만 나오게 해줘")
+        hashtags = self.process_videos_with_chatgpt(f"'{text}' 이 시나리오를 기준으로, 유튜브 해시태그 6개를 만들어주는데 숫자 없고 간격은 띄어쓰기로 해시태그만 나오게 해줘")
         return hashtags
 
     # 입력한 프롬프트를 가지고 비디오 분석 프롬프트 구성
