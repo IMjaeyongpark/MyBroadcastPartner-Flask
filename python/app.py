@@ -28,7 +28,8 @@ import websockets
 from afreecatv_api import get_player_live
 from categoryTop10 import categoryTop10
 from myVideo import myVideo
-
+from content import content
+from edit import download_video_with_range
 
 def create_app():
     app = Flask(__name__)
@@ -48,6 +49,8 @@ load_dotenv()
 youtube_api_key = os.environ.get('youtube_api_key')
 topic_IP = os.environ.get('topic_IP')
 
+# 카테고리 맞춤형 콘텐츠
+api.add_resource(content, '/content')
 # 인기 급상승 10위
 api.add_resource(top10, '/po')
 # 카테고리 키워드 10위
@@ -361,6 +364,13 @@ def stream_messages(BID, BNO):
     except StopAsyncIteration:
         pass
 
+@app.route('/saveshorts/<BCID>/<starttime>/<endtime>')
+def saveshorts(BCID,starttime,endtime):
+    title=BCID
+    print("https://www.youtube.com/watch?v="+title)
+    download_video_with_range("https://www.youtube.com/watch?v="+title, "00:10:38", "00:11:38",
+                              "/Users/ichungmin/PycharmProjects/moviepy")
+    return make_response(title,200)
 
 # 아프리카 채팅 가져오기
 @app.route('/afreecaTV/<BID>/<BNO>')
