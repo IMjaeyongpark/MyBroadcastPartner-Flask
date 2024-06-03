@@ -130,7 +130,7 @@ class content(Resource):
         new_titles = self.generate_video_titles(summary_result)
 
         # 시나리오 생성
-        content_ideas = self.process_videos_with_chatgpt(f"'{summary_result}' 이 요약을 기준으로, 유튜브 동영상을 만드려고 하는데 안녕하세요부터 시작해서 시나리오를 작성해줘 :")
+        content_ideas = self.process_videos_with_chatgpt(f"'{summary_result}' 이 요약을 기준으로, 유튜브 동영상의 시나리오를 작성해줘 :")
 
         # 해시태그 생성
         hashtags = self.generate_hashtags(content_ideas)
