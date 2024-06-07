@@ -29,7 +29,9 @@ from afreecatv_api import get_player_live
 from categoryTop10 import categoryTop10
 from myVideo import myVideo
 from content import content
-from edit import download_video_with_range
+
+
+# from edit import download_video_with_range
 
 def create_app():
     app = Flask(__name__)
@@ -59,6 +61,27 @@ api.add_resource(categoryTop10, '/categoryTop10')
 api.add_resource(myVideo, '/myVideo')
 
 
+# 감정 분석
+def emotionai(sen):
+    IP = os.environ.get('server_IP')
+    emotion = requests.get(
+        IP + sen
+    ).json()
+    tmp = json.loads(str(emotion['emotion7P']).replace('\'', '\"'))
+    emotion['emotion7'] = int(emotion['emotion7'])
+    emotion['emotion3'] = float(emotion['emotion3'])
+    emotion['emotion7P'] = tmp
+    if emotion['emotion7'] == 4 or (emotion['emotion3'] > 0.45 and emotion['emotion3'] < 0.55):
+        emotion['emotion3'] = 2
+    elif emotion['emotion3'] > 0.5:
+        emotion['emotion3'] = 1
+    else:
+        emotion['emotion3'] = 0
+
+    return emotion
+
+
+@app.route('/test')
 def generate(BCID, Email):
     chat = pytchat.create(video_id=BCID)
 
@@ -84,49 +107,41 @@ def generate(BCID, Email):
                 if not (preDate == c.datetime and preName == c.author.name):
                     mes = re.sub(r':[^:]+:', '', c.message)
 
+                    # data2 = {
+                    #     "author": c.author.name,
+                    #     "user_id": c.author.channelId,
+                    #     "dateTime": c.datetime,
+                    #     "message": mes,
+                    #     "emotion3": random.randint(0, 2),
+                    #     "emotion7": random.randint(0, 6),
+                    #     "emotion7p": "{'Nervous': 0.0002247557567898184, 'Embrrassed': 0.000452860607765615,"
+                    #                  " 'Angry': 0.00013303376908879727, 'Sadness' :0.00041099119698628783,"
+                    #                  " 'Neutral': 0.8828464150428772, 'Happiness': 0.0006854483508504927,"
+                    #                  " 'Disgust': 0.11524643748998642}",
+                    #     "platform": 0
+                    # }
+                    # yield f'data:{data2}\n\n'
+
+                    emotion = emotionai(mes)
+
                     data2 = {
                         "author": c.author.name,
                         "user_id": c.author.channelId,
                         "dateTime": c.datetime,
                         "message": mes,
-                        "emotion3": random.randint(0, 2),
-                        "emotion7": random.randint(0, 6),
-                        "emotion7p": "{'Nervous': 0.0002247557567898184, 'Embrrassed': 0.000452860607765615,"
-                                     " 'Angry': 0.00013303376908879727, 'Sadness' :0.00041099119698628783,"
-                                     " 'Neutral': 0.8828464150428772, 'Happiness': 0.0006854483508504927,"
-                                     " 'Disgust': 0.11524643748998642}",
+                        "emotion3": emotion['emotion3'],
+                        "emotion7": emotion['emotion7'],
+                        "emotion7P": emotion['emotion7P'],
                         "platform": 0
                     }
-                    yield f'data:{data2}\n\n'
-
-                    # IP = os.environ.get('server_IP')
-                    # emotion = requests.get(
-                    #     IP + c.message
-                    # ).json()
-                    # emotion['emotion7'] = int(emotion['emotion7'])
-                    # emotion['emotion3'] = float(emotion['emotion3'])
-                    # if emotion['emotion7'] == 4 or (emotion['emotion3'] > 0.45 and emotion['emotion3'] < 0.55):
-                    #     emotion['emotion3'] = 2
-                    # elif emotion['emotion3'] > 0.5:
-                    #     emotion['emotion3'] = 1
-                    # else:
-                    #     emotion['emotion3'] = 0
-                    #
-                    # data2 = {
-                    #     "author": c.author.channelId,
-                    #     "dateTime": c.datetime,
-                    #     "message": mes,
-                    #     "emotion3": emotion['emotion3'],
-                    #     "emotion7": emotion['emotion7']
-                    # }
-                    # yield f"data:{data2}\n\n"
+                    yield f"data:{data2}\n\n"
                     # URI = "http://localhost:8080/broadcast/chat?email=" + Email + "&BCID=" + BCID + "&name=" + c.author.name
                     # do_async(URI, data2)
-                    # preName = c.author.name
-                    # preDate = c.datetime
+                    preName = c.author.name
+                    preDate = c.datetime
 
-        except ClientDisconnected:
-            print("클라이언트 연결 종료")
+        except ClientDisconnected as e:
+            print(f"youtube 에러 : {e}")
             break
 
 
@@ -259,22 +274,21 @@ class ChzzkChat:
                     now = datetime.fromtimestamp(chat_data['msgTime'] / 1000)
                     now = datetime.strftime(now, '%Y-%m-%d %H:%M:%S')
 
+                    emotion = emotionai(chat_data["msg"])
+
                     data2 = {
                         "author": nickname,
                         "user_id": profile_data["userIdHash"],
                         "dateTime": now,
                         "message": chat_data["msg"],
-                        "emotion3": random.randint(0, 2),
-                        "emotion7": random.randint(0, 6),
-                        "emotion7p": "{'Nervous': 0.0002247557567898184, 'Embrrassed': 0.000452860607765615,"
-                                     " 'Angry': 0.00013303376908879727, 'Sadness' :0.00041099119698628783,"
-                                     " 'Neutral': 0.8828464150428772, 'Happiness': 0.0006854483508504927,"
-                                     " 'Disgust': 0.11524643748998642}",
+                        "emotion3": emotion['emotion3'],
+                        "emotion7": emotion['emotion7'],
+                        "emotion7P": emotion['emotion7P'],
                         "platform": 1
                     }
                     yield f'data:{data2}\n\n'
             except Exception as e:
-                print(f"An error occurred: {e}")
+                print(f"치지직 에러: {e}")
 
 
 # 유니코드 및 기타 상수
@@ -297,20 +311,19 @@ def decode_message(bytes):
     if len(messages) > 5 and messages[1] not in ['-1', '1'] and '|' not in messages[1]:
         user_id, comment, user_nickname = messages[2], messages[1], messages[6]
         if 'fw=' not in user_nickname and "1" not in user_nickname:
+            emotion = emotionai(comment)
+
             data2 = {
                 "author": user_nickname,
                 "user_id": user_id,
-                # "dateTime": now,
+                "dateTime": time.strftime('%Y-%m-%d %H:%M:%S'),
                 "message": comment,
-                "emotion3": random.randint(0, 2),
-                "emotion7": random.randint(0, 6),
-                "emotion7p": "{'Nervous': 0.0002247557567898184, 'Embrrassed': 0.000452860607765615,"
-                             " 'Angry': 0.00013303376908879727, 'Sadness' :0.00041099119698628783,"
-                             " 'Neutral': 0.8828464150428772, 'Happiness': 0.0006854483508504927,"
-                             " 'Disgust': 0.11524643748998642}",
+                "emotion3": emotion['emotion3'],
+                "emotion7": emotion['emotion7'],
+                "emotion7P": emotion['emotion7P'],
                 "platform": 2
             }
-            return data2
+            return f'{data2}'
 
     else:
         return None
@@ -321,34 +334,33 @@ def calculate_byte_size(string):
 
 
 async def fetch_messages(BID, BNO, ssl_context):
-    try:
-        # 여기에 실제 get_player_live(BNO, BID) 함수의 로직을 구현해야 합니다.
-        # 이 예제에서는 해당 함수가 미리 정의되었다고 가정합니다.
-        CHDOMAIN, CHATNO, FTK, TITLE, BJID, CHPT = get_player_live(BNO, BID)
+    # 여기에 실제 get_player_live(BNO, BID) 함수의 로직을 구현해야 합니다.
+    # 이 예제에서는 해당 함수가 미리 정의되었다고 가정합니다.
+    CHDOMAIN, CHATNO, FTK, TITLE, BJID, CHPT = get_player_live(BNO, BID)
 
-        async with websockets.connect(
-                f"wss://{CHDOMAIN}:{CHPT}/Websocket/{BID}",
-                subprotocols=['chat'],
-                ssl=ssl_context,
-                ping_interval=None
-        ) as websocket:
-            CONNECT_PACKET = f'{ESC}000100000600{F * 3}16{F}'
-            JOIN_PACKET = f'{ESC}0002{calculate_byte_size(CHATNO):06}00{F}{CHATNO}{F * 5}'
-            PING_PACKET = f'{ESC}000000000100{F}'
+    async with websockets.connect(
+            f"wss://{CHDOMAIN}:{CHPT}/Websocket/{BID}",
+            subprotocols=['chat'],
+            ssl=ssl_context,
+            ping_interval=None
+    ) as websocket:
+        CONNECT_PACKET = f'{ESC}000100000600{F * 3}16{F}'
+        JOIN_PACKET = f'{ESC}0002{calculate_byte_size(CHATNO):06}00{F}{CHATNO}{F * 5}'
+        PING_PACKET = f'{ESC}000000000100{F}'
 
-            await websocket.send(CONNECT_PACKET)
-            await asyncio.sleep(2)
-            await websocket.send(JOIN_PACKET)
+        await websocket.send(CONNECT_PACKET)
+        await asyncio.sleep(2)
+        await websocket.send(JOIN_PACKET)
 
-            while True:
+        while True:
+            try:
                 data = await websocket.recv()
+
                 mes = decode_message(data)
                 if mes:
                     yield f'data:{mes}\n\n'
-
-    except Exception as e:
-        print(f"Error: {e}")
-        yield "Error in websocket connection"
+            except Exception as e:
+                print(f"afreeca: {e}")
 
 
 def stream_messages(BID, BNO):
@@ -364,13 +376,14 @@ def stream_messages(BID, BNO):
     except StopAsyncIteration:
         pass
 
-@app.route('/saveshorts/<BCID>/<starttime>/<endtime>')
-def saveshorts(BCID,starttime,endtime):
-    title=BCID
-    print("https://www.youtube.com/watch?v="+title)
-    download_video_with_range("https://www.youtube.com/watch?v="+title, "00:10:38", "00:11:38",
-                              "/Users/ichungmin/PycharmProjects/moviepy")
-    return make_response(title,200)
+
+# @app.route('/saveshorts/<BCID>/<starttime>/<endtime>')
+# def saveshorts(BCID,starttime,endtime):
+#     title=BCID
+#     print("https://www.youtube.com/watch?v="+title)
+#     download_video_with_range("https://www.youtube.com/watch?v="+title, "00:10:38", "00:11:38",
+#                               "/Users/ichungmin/PycharmProjects/moviepy")
+#     return make_response(title,200)
 
 # 아프리카 채팅 가져오기
 @app.route('/afreecaTV/<BID>/<BNO>')
