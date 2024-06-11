@@ -30,8 +30,8 @@ from categoryTop10 import categoryTop10
 from myVideo import myVideo
 from content import content
 
+from edit import download_video_with_range
 
-# from edit import download_video_with_range
 
 def create_app():
     app = Flask(__name__)
@@ -50,6 +50,7 @@ print("실행레쓰고")
 load_dotenv()
 youtube_api_key = os.environ.get('youtube_api_key')
 topic_IP = os.environ.get('topic_IP')
+spring_IP = os.environ.get('spring_server_IP')
 
 # 카테고리 맞춤형 콘텐츠
 api.add_resource(content, '/content')
@@ -377,13 +378,14 @@ def stream_messages(BID, BNO):
         pass
 
 
-# @app.route('/saveshorts/<BCID>/<starttime>/<endtime>')
-# def saveshorts(BCID,starttime,endtime):
-#     title=BCID
-#     print("https://www.youtube.com/watch?v="+title)
-#     download_video_with_range("https://www.youtube.com/watch?v="+title, "00:10:38", "00:11:38",
-#                               "/Users/ichungmin/PycharmProjects/moviepy")
-#     return make_response(title,200)
+@app.route('/saveshorts/<BCID>/<starttime>/<endtime>')
+def saveshorts(BCID, starttime, endtime):
+    title = BCID
+    print("https://www.youtube.com/watch?v=" + title)
+    download_video_with_range("https://www.youtube.com/watch?v=" + title, "00:10:38", "00:11:38",
+                              "/Users/jaeyong/Desktop/Debug/python/shorts")
+    return make_response(title, 200)
+
 
 # 아프리카 채팅 가져오기
 @app.route('/afreecaTV/<BID>/<BNO>')
@@ -442,7 +444,7 @@ def concurrentViewers(BCID):
             vi = data['items'][0]['liveStreamingDetails']['concurrentViewers']
             yield f"data:{vi}\n\n"
             t = datetime.now() - published
-            spurl = f'http://localhost:8080/broadcast/saveViewer?BCID={BCID}&sec={t.seconds}&viewer={vi}'
+            spurl = f'http://spring_IP/broadcast/saveViewer?BCID={BCID}&sec={t.seconds}&viewer={vi}'
             requests.get(spurl, headers=header)
             time.sleep(15)
 
@@ -451,7 +453,7 @@ def concurrentViewers(BCID):
 
 @app.route("/feedback/<BCID>")
 def feedback(BCID):
-    URI = f'http://localhost:8080/broadcast/getChat?BCID={BCID}'
+    URI = f'http://spring_IP/broadcast/getChat?BCID={BCID}'
     data = requests.get(URI).json()
     published = datetime.strptime(data['published'], '%Y-%m-%dT%H:%M:%SZ')
     published = published + timedelta(hours=9)
