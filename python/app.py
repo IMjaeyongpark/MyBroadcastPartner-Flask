@@ -28,7 +28,6 @@ import websockets
 from afreecatv_api import get_player_live
 from categoryTop10 import categoryTop10
 from myVideo import myVideo
-from content import content
 from edit import download_video_with_range
 
 
