@@ -51,8 +51,6 @@ youtube_api_key = os.environ.get('youtube_api_key')
 topic_IP = os.environ.get('topic_IP')
 spring_IP = os.environ.get('spring_server_IP')
 
-# 카테고리 맞춤형 콘텐츠
-api.add_resource(content, '/content')
 # 인기 급상승 10위
 api.add_resource(top10, '/po')
 # 카테고리 키워드 10위
