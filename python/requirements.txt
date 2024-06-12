@@ -27,9 +27,6 @@ charset-normalizer==3.3.2
 click==8.1.7
 cmd2==2.4.3
 colorama==0.4.6
-conda==22.11.1
-conda-package-handling==2.0.2
-conda_package_streaming==0.7.0
 contourpy==1.0.7
 cors==1.0.1
 cryptography==39.0.0

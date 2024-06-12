@@ -1,7 +1,7 @@
 import time
 import random
 
-from flask import Flask, Response, stream_with_context
+from flask import Flask, make_response,Response, stream_with_context
 from flask_cors import CORS
 from datetime import timedelta
 import datetime
@@ -29,6 +29,7 @@ from afreecatv_api import get_player_live
 from categoryTop10 import categoryTop10
 from myVideo import myVideo
 from content import content
+from edit import download_video_with_range
 
 
 
@@ -80,6 +81,16 @@ def emotionai(sen):
 
     return emotion
 
+
+
+# 숏폼생성 다운로드
+@app.route('/saveshorts/<BCID>/<starttime>/<endtime>')
+def saveshorts(BCID,starttime,endtime):
+    title=BCID
+    print("https://www.youtube.com/watch?v="+title)
+    download_video_with_range("https://www.youtube.com/watch?v="+title, "00:10:38", "00:11:38",
+                              "/shorts")
+    return make_response(title,200)
 
 @app.route('/test')
 def test():
