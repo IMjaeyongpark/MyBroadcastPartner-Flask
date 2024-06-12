@@ -1,7 +1,7 @@
 import time
 import random
 
-from flask import Flask, Response, stream_with_context, jsonify, make_response
+from flask import Flask, Response, stream_with_context
 from flask_cors import CORS
 from datetime import timedelta
 import datetime
@@ -30,7 +30,6 @@ from categoryTop10 import categoryTop10
 from myVideo import myVideo
 from content import content
 
-from edit import download_video_with_range
 
 
 def create_app():
@@ -83,6 +82,9 @@ def emotionai(sen):
 
 
 @app.route('/test')
+def test():
+    return "test"
+
 def generate(BCID, Email):
     chat = pytchat.create(video_id=BCID)
 
@@ -378,15 +380,6 @@ def stream_messages(BID, BNO):
         pass
 
 
-@app.route('/saveshorts/<BCID>/<starttime>/<endtime>')
-def saveshorts(BCID, starttime, endtime):
-    title = BCID
-    print("https://www.youtube.com/watch?v=" + title)
-    download_video_with_range("https://www.youtube.com/watch?v=" + title, "00:10:38", "00:11:38",
-                              "/Users/jaeyong/Desktop/Debug/python/shorts")
-    return make_response(title, 200)
-
-
 # 아프리카 채팅 가져오기
 @app.route('/afreecaTV/<BID>/<BNO>')
 def afreecaTV_sse(BID, BNO):
@@ -560,4 +553,4 @@ def jsonmax(data):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True, port=8801, threaded=False, processes=10)
+    app.run(host="0.0.0.0", debug=True, port=2942, threaded=False, processes=10)
