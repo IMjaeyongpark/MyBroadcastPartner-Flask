@@ -1,7 +1,7 @@
 import time
 import random
 
-from flask import Flask, make_response,Response, stream_with_context
+from flask import Flask, make_response, Response, stream_with_context
 from flask_cors import CORS
 from datetime import timedelta
 import datetime
@@ -31,7 +31,6 @@ from myVideo import myVideo
 from edit import download_video_with_range
 
 
-
 def create_app():
     app = Flask(__name__)
     return app
@@ -41,7 +40,7 @@ app = create_app()
 
 api = Api(app)
 app.config['JSON_AS_ASCII'] = False
-CORS(app)
+CORS(app, supports_credentials=True)
 
 running = True
 print("실행레쓰고")
@@ -57,6 +56,15 @@ api.add_resource(top10, '/po')
 api.add_resource(categoryTop10, '/categoryTop10')
 # 자신의 채널 정보 및 동영상 가져오기
 api.add_resource(myVideo, '/myVideo')
+
+
+@app.route('/saveshorts/<BCID>/<starttime>/<endtime>')
+def saveshorts(BCID, starttime, endtime):
+    title = BCID
+    print("https://www.youtube.com/watch?v=" + title)
+    download_video_with_range("https://www.youtube.com/watch?v=" + title, "00:2:38", "00:3:38",
+                              "./shorts")
+    return make_response(title, 200)
 
 
 # 감정 분석
@@ -79,19 +87,10 @@ def emotionai(sen):
     return emotion
 
 
-
-# 숏폼생성 다운로드
-@app.route('/saveshorts/<BCID>/<starttime>/<endtime>')
-def saveshorts(BCID,starttime,endtime):
-    title=BCID
-    print("https://www.youtube.com/watch?v="+title)
-    download_video_with_range("https://www.youtube.com/watch?v="+title, "00:10:38", "00:11:38",
-                              "/shorts")
-    return make_response(title,200)
-
 @app.route('/test')
 def test():
     return "test"
+
 
 def generate(BCID, Email):
     chat = pytchat.create(video_id=BCID)

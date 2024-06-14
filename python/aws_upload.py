@@ -10,7 +10,7 @@ ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID') #s3 관련 권한을 가진 
 ACCESS_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 def upload_file(f): #f는 파일name
 
-    data = open('/Users/ichungmin/PycharmProjects/moviepy/' + f, 'rb')
+    data = open('./shorts/' + f, 'rb')
     # '로컬의 해당파일경로'+ 파일명 + 확장자
     s3 = boto3.resource(
         's3',
