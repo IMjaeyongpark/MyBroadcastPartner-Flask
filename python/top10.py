@@ -21,6 +21,7 @@ class top10(Resource):
             'maxResults': 10  # 가져올 결과의 최대 수 (10개로 설정)
         }
         response = requests.get(api_url, params=params).json()
+        print(response)
         popular_videos = response.get('items', [])
         data = {'data': []}
         for video in popular_videos:

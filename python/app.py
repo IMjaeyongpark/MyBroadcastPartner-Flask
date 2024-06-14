@@ -514,11 +514,12 @@ def comment(BCID):
 
     comments = list()
     api_obj = build('youtube', 'v3', developerKey=api_key)
-    response = api_obj.commentThreads().list(part='snippet,replies', videoId=video_id).execute()
+    response = api_obj.commentThreads().list(part='snippet,replies', videoId=video_id, maxResults=100).execute()
 
     while response:
         for item in response['items']:
             comment = item['snippet']['topLevelComment']['snippet']
+            print(comment)
             emo = emotionai(comment)
             data = {
                 'textDisplay': comment['textDisplay'],
@@ -530,23 +531,6 @@ def comment(BCID):
             }
             comments.append(data)
 
-            if item['snippet']['totalReplyCount'] > 0:
-                for reply_item in item['replies']['comments']:
-                    reply = reply_item['snippet']
-                    data = {
-                        'textDisplay': reply['textDisplay'],
-                        'authorDisplayName': reply['authorDisplayName'],
-                        'publishedAt': reply['publishedAt'],
-                        'likeCount': reply['likeCount'],
-                        "emotion3": random.randint(0, 2),
-                        "emotion7": random.randint(0, 6),
-                    }
-                    comments.append(data)
-        if 'nextPageToken' in response:
-            response = api_obj.commentThreads().list(part='snippet,replies', videoId=video_id,
-                                                     pageToken=response['nextPageToken'], maxResults=100).execute()
-        else:
-            break
 
     return comments
 
