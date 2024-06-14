@@ -519,8 +519,7 @@ def comment(BCID):
     while response:
         for item in response['items']:
             comment = item['snippet']['topLevelComment']['snippet']
-            print(comment)
-            emo = emotionai(comment)
+            emo = emotionai(comment['textDisplay'])
             data = {
                 'textDisplay': comment['textDisplay'],
                 'authorDisplayName': comment['authorDisplayName'],
@@ -531,6 +530,24 @@ def comment(BCID):
             }
             comments.append(data)
 
+            if item['snippet']['totalReplyCount'] > 0:
+                for reply_item in item['replies']['comments']:
+                    reply = reply_item['snippet']
+                    emo = emotionai(comment['textDisplay'])
+                    data = {
+                        'textDisplay': reply['textDisplay'],
+                        'authorDisplayName': reply['authorDisplayName'],
+                        'publishedAt': reply['publishedAt'],
+                        'likeCount': reply['likeCount'],
+                        "emotion3": emo['emotion3'],
+                        "emotion7": emo['emotion7'],
+                    }
+                    comments.append(data)
+        if 'nextPageToken' in response:
+            response = api_obj.commentThreads().list(part='snippet,replies', videoId=video_id,
+                                                     pageToken=response['nextPageToken'], maxResults=100).execute()
+        else:
+            break
 
     return comments
 
