@@ -519,13 +519,14 @@ def comment(BCID):
     while response:
         for item in response['items']:
             comment = item['snippet']['topLevelComment']['snippet']
+            emo = emotionai(comment)
             data = {
                 'textDisplay': comment['textDisplay'],
                 'authorDisplayName': comment['authorDisplayName'],
                 'publishedAt': comment['publishedAt'],
                 'likeCount': comment['likeCount'],
-                "emotion3": random.randint(0, 2),
-                "emotion7": random.randint(0, 6),
+                "emotion3": emo['emotion3'],
+                "emotion7": emo['emotion7'],
             }
             comments.append(data)
 
