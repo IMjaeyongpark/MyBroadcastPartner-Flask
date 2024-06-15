@@ -40,14 +40,15 @@ class myVideo(Resource):
         return channel_details
 
     # 자신의 채널 영상 가져오기
-    def get_videos(self, api_key, channel_id, sequence):
+    def get_videos(self, api_key, channel_id, sequence, videoType):
         url = "https://www.googleapis.com/youtube/v3/search"
         params = {
             'key': api_key,
             'part': 'snippet',
             'channelId': channel_id,
             'type': 'video',
-            'order': sequence  # 사용자가 원하는 순서
+            'order': sequence,  # 사용자가 원하는 순서
+            'videoDuration': videoType  # 숏폼을 제외한 보통 길이의 영상 가져오기
         }
         response = requests.get(url, params=params)
         videos_response = response.json()
@@ -94,12 +95,13 @@ class myVideo(Resource):
         youtube_api_key = os.environ.get('youtube_api_key')
         channel_id = request.args.get('channel_id', type=str)
         sequence = request.args.get('sequence', type=str)
+        videoType = request.args.get('videoType', type=str)
 
         # 자신의 채널 정보 가져오기
         channel_info = self.get_channel_data(youtube_api_key, channel_id)
 
         # 채널의 영상 가져오기
-        videos = self.get_videos(youtube_api_key, channel_info['channel_id'], sequence)
+        videos = self.get_videos(youtube_api_key, channel_info['channel_id'], sequence, videoType)
 
         # 최종 데이터 생성
         data = {
