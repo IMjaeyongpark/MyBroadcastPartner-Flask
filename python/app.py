@@ -363,6 +363,7 @@ async def fetch_messages(BID, BNO, ssl_context):
         await websocket.send(JOIN_PACKET)
 
         while True:
+            count = 0
             try:
                 data = await websocket.recv()
 
@@ -371,6 +372,9 @@ async def fetch_messages(BID, BNO, ssl_context):
                     yield f'data:{mes}\n\n'
             except Exception as e:
                 print(f"afreeca: {e}")
+                count += 1
+                if count > 10:
+                    break
 
 
 def stream_messages(BID, BNO):
@@ -529,10 +533,11 @@ def comment(BCID):
                 "emotion7": emo['emotion7'],
             }
             comments.append(data)
-
+            print(item['snippet'])
             if item['snippet']['totalReplyCount'] > 0:
                 for reply_item in item['replies']['comments']:
                     reply = reply_item['snippet']
+                    print(reply)
                     emo = emotionai(comment['textDisplay'])
                     data = {
                         'textDisplay': reply['textDisplay'],
