@@ -1,7 +1,7 @@
 import time
 import random
 
-from flask import Flask, make_response, Response, stream_with_context
+from flask import Flask, make_response, Response, stream_with_context, request, jsonify
 from flask_cors import CORS
 from datetime import timedelta
 import datetime
@@ -50,8 +50,6 @@ load_dotenv()
 youtube_api_key = os.environ.get('youtube_api_key')
 topic_IP = os.environ.get('topic_IP')
 spring_IP = os.environ.get('spring_server_IP')
-
-
 
 # 카테고리 맞춤형 콘텐츠
 api.add_resource(content, '/content')
@@ -374,11 +372,12 @@ async def fetch_messages(BID, BNO, ssl_context):
 
                 mes = decode_message(data)
                 if mes:
+                    count = 0
                     yield f'data:{mes}\n\n'
             except Exception as e:
                 print(f"afreeca: {e}")
                 count += 1
-                if count > 10:
+                if count > 5:
                     break
 
 
@@ -521,12 +520,16 @@ def comment(BCID):
     api_key = os.environ.get('youtube_api_key')
     video_id = BCID
 
+    nextPageToken = request.args.get('nextPageToken')
     comments = list()
     api_obj = build('youtube', 'v3', developerKey=api_key)
-    response = api_obj.commentThreads().list(part='snippet,replies', videoId=video_id, maxResults=100).execute()
+    response = api_obj.commentThreads().list(part='snippet,replies', pageToken=nextPageToken,
+                                             videoId=video_id, maxResults=20).execute()
+    if 'nextPageToken' in response:
+        nextPageToken = response['nextPageToken']
 
-    while response:
-        for item in response['items']:
+    for item in response['items']:
+        try:
             comment = item['snippet']['topLevelComment']['snippet']
             emo = emotionai(comment['textDisplay'])
             data = {
@@ -538,12 +541,10 @@ def comment(BCID):
                 "emotion7": emo['emotion7'],
             }
             comments.append(data)
-            print(item['snippet'])
             if item['snippet']['totalReplyCount'] > 0:
                 for reply_item in item['replies']['comments']:
                     reply = reply_item['snippet']
-                    print(reply)
-                    emo = emotionai(comment['textDisplay'])
+                    emo = emotionai(comment['textOriginal'])
                     data = {
                         'textDisplay': reply['textDisplay'],
                         'authorDisplayName': reply['authorDisplayName'],
@@ -553,13 +554,14 @@ def comment(BCID):
                         "emotion7": emo['emotion7'],
                     }
                     comments.append(data)
-        if 'nextPageToken' in response:
-            response = api_obj.commentThreads().list(part='snippet,replies', videoId=video_id,
-                                                     pageToken=response['nextPageToken'], maxResults=100).execute()
-        else:
-            break
+        except Exception as e:
+            print(e)
 
-    return comments
+    data = {
+        'comments': comments,
+        'nextPageToken': nextPageToken
+    }
+    return data
 
 
 def jsonmax(data):
