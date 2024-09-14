@@ -72,20 +72,25 @@ def saveshorts(BCID, starttime, endtime):
 
 # 감정 분석
 def emotionai(sen):
-    IP = os.environ.get('server_IP')
-    emotion = requests.get(
-        IP + sen
-    ).json()
-    tmp = json.loads(str(emotion['emotion7P']).replace('\'', '\"'))
-    emotion['emotion7'] = int(emotion['emotion7'])
-    emotion['emotion3'] = float(emotion['emotion3'])
-    emotion['emotion7P'] = tmp
-    if emotion['emotion7'] == 4 or (emotion['emotion3'] > 0.45 and emotion['emotion3'] < 0.55):
-        emotion['emotion3'] = 2
-    elif emotion['emotion3'] > 0.5:
-        emotion['emotion3'] = 1
-    else:
-        emotion['emotion3'] = 0
+    # IP = os.environ.get('server_IP')
+    # emotion = requests.get(
+    #     IP + sen
+    # ).json()
+    # tmp = json.loads(str(emotion['emotion7P']).replace('\'', '\"'))
+    # emotion['emotion7'] = int(emotion['emotion7'])
+    # emotion['emotion3'] = float(emotion['emotion3'])
+    # emotion['emotion7P'] = tmp
+    # if emotion['emotion7'] == 4 or (emotion['emotion3'] > 0.45 and emotion['emotion3'] < 0.55):
+    #     emotion['emotion3'] = 2
+    # elif emotion['emotion3'] > 0.5:
+    #     emotion['emotion3'] = 1
+    # else:
+    #     emotion['emotion3'] = 0
+    emotion = []
+    emotion['emotion3'] = random.randint(0, 2)
+    emotion['emotion7'] = random.randint(0, 6)
+    emotion['emotion7P']
+
 
     return emotion
 
