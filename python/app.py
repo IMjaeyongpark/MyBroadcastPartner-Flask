@@ -86,11 +86,10 @@ def emotionai(sen):
     #     emotion['emotion3'] = 1
     # else:
     #     emotion['emotion3'] = 0
-    emotion = []
+    emotion = {}
     emotion['emotion3'] = random.randint(0, 2)
     emotion['emotion7'] = random.randint(0, 6)
-    emotion['emotion7P']
-
+    emotion['emotion7P'] = []
 
     return emotion
 
